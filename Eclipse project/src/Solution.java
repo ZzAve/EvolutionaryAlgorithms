@@ -1,4 +1,3 @@
-
 /**
  * NOTE: The functions used for evaluating the fitness have an integer 'type' number:
  *   1: Uniformly Scaled Counting Ones Function
