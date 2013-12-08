@@ -16,7 +16,7 @@ public class Solution{
 	public Solution(int[] bitStringSolution,int type){
 		bitString = bitStringSolution;
 		solLength = bitString.length;
-		functionType=type;
+		functionType = type;
 		setFitness(bitString,type);
 		
 	}
@@ -32,12 +32,13 @@ public class Solution{
 		// Calculate max fitness for all cases! Then use a switch to report it back!
 		switch(functionType){
 		   case 1:
-		   	   return solLength*1;
+		   	   return solLength;
 		   case 2:
 			   return (solLength*(solLength+1))/2;
 		   case 3:
+			   return solLength;
 		   case 4:
-			   return solLength/4*4;
+			   return solLength;
 		   default:
 			   break;
 		}
@@ -95,7 +96,7 @@ public class Solution{
 		default:
 			break;
 		}
-		
+
 		return -1; // if no correct function was set, return -1		
 	}
 	
