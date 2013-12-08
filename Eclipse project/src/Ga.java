@@ -17,6 +17,18 @@ public class Ga{
 		popSize = populationSize;
 		tourSize = tournamentSize;
 		
+		for(int size=0; size<popSize; size++){
+			
+			int[] solution = new int[100];
+			
+			for(int bit=0; bit<100; bit++){	
+				solution[bit] = (int) Math.random();
+			}
+			
+			Solution sol = new Solution(solution, fitnessFunction);
+			population.add(sol);
+		}
+		
 		runGa(50,new String());
 	}
 	
