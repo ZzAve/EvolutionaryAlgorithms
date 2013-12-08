@@ -12,7 +12,7 @@
  * Process results and do another parameter setting (or 50 or parameter settings or so)
  */
 
-public class main{
+public class Main{
 	
 	public static void main(String[] args){
 		// Select parameter settings
