@@ -16,8 +16,28 @@ public class Main{
 	
 	public static void main(String[] args){
 		// Select parameter settings
+		
+		// We moeten allerlei combinaties van parameter values afgaan, maar heb nog voor het gemak 1 variant.
+		int solutionLength = 100;
+		int populationSize = 100;		// multiple of 10
+		int tournamentSize = 1;			// 1 or 2
+		int fitnessFunctionType = 1;	// 1,2,3,4
+		int linkageType = 1;			// 1=tight, 2=random
+		double probCrossover = 0;		// 0, 0.5, 1
+		int crossoverType = 1;			// 1=2point, 2=uniform
+		
 		// Perform GA
-		// And the rest....
+		for(int run=0; run<50; run++){
+			
+			Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
+			
+			// number of generations after the global optimum was found
+			// if value is .., no optimum found
+			int timeUntilOpt = ga.runGa();
+			
+			// print result
+		}
+		
 	}
 
 }
