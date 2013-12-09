@@ -31,12 +31,10 @@ public class Solution{
 	public static int getMaxFitness(int functionType){
 		// Calculate max fitness for all cases! Then use a switch to report it back!
 		switch(functionType){
-		   case 1:
-		   	   return solLength;
 		   case 2:
-			   return (solLength*(solLength+1))/2;
+		   	   return (solLength*(solLength+1))/2;		   	
+		   case 1:
 		   case 3:
-			   return solLength;
 		   case 4:
 			   return solLength;
 		   default:

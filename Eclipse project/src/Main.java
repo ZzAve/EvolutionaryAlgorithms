@@ -7,7 +7,7 @@
  *     apply mutation
  *     select childpool (best popsize) (also update 'unchanged' and T)
  * 
- *   Repeate the above 50 times!
+ *   Repeat the above 50 times!
  * 
  * Process results and do another parameter setting (or 50 or parameter settings or so)
  */

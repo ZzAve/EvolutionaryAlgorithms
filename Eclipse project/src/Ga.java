@@ -17,7 +17,7 @@ public class Ga{
 		popSize = populationSize;
 		tourSize = tournamentSize;
 		
-		for(int size=0; size<popSize; size++){
+		/*for(int size=0; size<popSize; size++){
 			
 			int[] solution = new int[100];
 			
@@ -27,9 +27,9 @@ public class Ga{
 			
 			Solution sol = new Solution(solution, fitnessFunction);
 			population.add(sol);
-		}
+		}*/
 		
-		runGa(50,new String());
+		//runGa(50,new String());
 	}
 	
 	private ArrayList performTournament(int tournamentSize){
@@ -70,11 +70,10 @@ public class Ga{
 		// what strategy?
 	}
 	
-	private void mutation(Solution sol){
+	private Solution mutation(Solution sol){
 		Random randomNr = new Random();
-		float mutationGuess = randomNr.nextFloat();
 		int nrOfMutations=0;
-		while (mutationGuess < 1 / (2^(nrOfMutations+1) ) ){
+		while (randomNr.nextFloat()<0.5 ){
 			nrOfMutations++;
 		}
 		
@@ -93,13 +92,17 @@ public class Ga{
 		   }
 			  if(!found)
 				  mutations[nb_picked]=index;
-		}
+		} 
 		sol.mutateSolution(mutations);
+		return sol;
+		
 	}
 		
-		// perform nrOfMutations number of mutations!
+	public String runGa(String answer){
+		return runGa(100,answer);
+	}
 	
-	public String runGa(int nrOfTimes,String answer){
+	private String runGa(int nrOfTimes,String answer){
 		if (nrOfTimes > 0) {
 			
 			/* For a parameter setting
@@ -115,10 +118,25 @@ public class Ga{
 			}
 			 /*
 			 *   get maxFitness for the current case*/
-		     int T = ((Solution) population.get(10)).getMaxFitness(fitnessFunction);
+		     int T = Solution.getMaxFitness(fitnessFunction);
 		     
-		     while(T<Integer.MAX_VALUE){
-		    	 performTournament(tourSize);
+		     while(T==T){ //+ unchanged condition for 10*popSize runs
+		    	 ArrayList parentPool = performTournament(tourSize);
+		    	 for (int solId=0;solId<popSize;solId+=2){
+		    		 if (bitGenerator.nextFloat() <0.5){
+			    		 //do crossover
+		    			 
+			    	 } else {
+			    		 //do mutation
+			    		 //population.set(solId,mutation((Solution)population.get(solId)));
+			    		 
+			    	 }
+		    		 
+		    		 
+		    		 
+		    	 }
+		    	 
+		    	 
 		    	 //crossOver();
 		    	 //mutation();
 		    	 //creation of children pool
