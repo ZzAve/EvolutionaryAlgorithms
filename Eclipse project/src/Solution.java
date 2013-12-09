@@ -1,3 +1,6 @@
+import java.util.Collection;
+import java.util.Random;
+
 /**
  * NOTE: The functions used for evaluating the fitness have an integer 'type' number:
  *   1: Uniformly Scaled Counting Ones Function
@@ -8,16 +11,18 @@
  */
 public class Solution{
 	
-	private int[] bitString; 
-	private int fitness;
-	private static int solLength;
-	private int functionType;
+	int[] bitString; 
+	int fitness;
+	static int solLength;
+	int functionType;
+	int linkage;
 	
-	public Solution(int[] bitStringSolution,int type){
+	public Solution(int[] bitStringSolution, int type, int link){
 		bitString = bitStringSolution;
 		solLength = bitString.length;
 		functionType = type;
-		setFitness(bitString,type);
+		linkage = link;
+		setFitness(bitString, type, linkage);
 		
 	}
 	
@@ -44,7 +49,7 @@ public class Solution{
 	}
 	
 	
-	private static int calcFitness(int[] bitString, int functionType){
+	private static int calcFitness(int[] bitString, int functionType, int linkage){
 		switch (functionType) {
 		case 1:  // uniformly scale counting ones function
 			int fit1 =0;
@@ -61,13 +66,17 @@ public class Solution{
 			return fit2;
 			
 		case 3: // deceptive trap function k=4, d=1
+			if(linkage==2) {
+				shuffleArray(bitString);
+			}
+				
 			int fit3=0;
 			int[] CO = new int[4];
 			int COfit;
 			for (int bit=0;bit<bitString.length;bit+=4){
 				CO[0] = bitString[bit];  CO[1]=bitString[bit+1];
 				CO[2]=bitString[bit+2];  CO[3]=bitString[bit+3];
-				COfit = calcFitness(CO,1);
+				COfit = calcFitness(CO,1,linkage);
 				if(COfit==4){
 					fit3+=4;
 				} else {
@@ -77,13 +86,17 @@ public class Solution{
 			return fit3;
 			
 		case 4: // non-deceptive trap function k=4, d=2.5
+			if(linkage==2) {
+				shuffleArray(bitString);
+			}
+			
 			int fit4=0;
 			int[] CO2 = new int[4];
 			int CO2fit;
 			for (int bit=0;bit<bitString.length;bit+=4){
 				CO2[0] = bitString[bit];  CO2[1]=bitString[bit+1];
 				CO2[2]=bitString[bit+2];  CO2[3]=bitString[bit+3];
-				CO2fit = calcFitness(CO2,1);
+				CO2fit = calcFitness(CO2,1,linkage);
 				if(CO2fit==4){
 					fit4+=4;
 				} else {
@@ -98,8 +111,8 @@ public class Solution{
 		return -1; // if no correct function was set, return -1		
 	}
 	
-	public void setFitness(int[] bitString,int functionType){
-		fitness = calcFitness(bitString, functionType);
+	public void setFitness(int[] bitString, int functionType, int linkage){
+		fitness = calcFitness(bitString, functionType, linkage);
 	}
 	
 	public void mutateSolution(int[] indices){
@@ -110,6 +123,21 @@ public class Solution{
 				bitString[i]=0;
 			}
 		}
-		setFitness(bitString,functionType);
+		setFitness(bitString,functionType,linkage);
 	}
+	
+	
+	static void shuffleArray(int[] bits)
+	  {
+	    Random rand = new Random();
+	    for (int i=bits.length-1; i>0; i--)
+	    {
+	      int index = rand.nextInt(i + 1);
+	      // Simple swap
+	      int bit = bits[index];
+	      bits[index] = bits[i];
+	      bits[i] = bit;
+	    }
+	  }
+	
 }
