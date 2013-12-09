@@ -6,30 +6,53 @@ import java.util.Random;
 
 public class Ga{
 	
-	private int fitnessFunction;
 	private ArrayList population;
+	
+	private int solLength;
 	private int popSize;
 	private int tourSize;
+	private int fitnessFunction;
+	private int linkage;			// 1=tight, 2=random
+	private double probCross;				// probability of crossover (else mutation) 
+	private int crossType;					// 1=2point, 2=uniform
+	private int nrOfGenerations;	// at most 10*popSize 
+	private int bestFitness;		// current best fitness of population
+	private int maxFitness;			// highest fitness value possible (given fitness function)
+	Random bitGenerator;
+	boolean changed;				// keeps track of change in population
 	
-	public Ga(int fitnessFunctionType,int populationSize, int tournamentSize){
+	public Ga(int solutionLength, int populationSize, int tournamentSize, int fitnessFunctionType, int linkageType, double probCrossover, int crossoverType){
 		
-		fitnessFunction = fitnessFunctionType;
+		solLength = solutionLength;
 		popSize = populationSize;
 		tourSize = tournamentSize;
+		fitnessFunction = fitnessFunctionType;
+		linkage = linkageType;
+		probCross = probCrossover;
+		crossType = crossoverType;
+		nrOfGenerations = 10*popSize;
+		bestFitness = 0;
+		maxFitness = Solution.getMaxFitness(fitnessFunction);
+		bitGenerator = new Random();
+		changed = true;
+	}
+	
+	private void generatePopulation(){
 		
-		/*for(int size=0; size<popSize; size++){
-			
-			int[] solution = new int[100];
-			
-			for(int bit=0; bit<100; bit++){	
-				solution[bit] = (int) Math.random();
+		// instantiate a random population (with x solutions)
+		
+	    int[] dummySolution = new int[solLength];
+		for (int solNr=0;solNr<popSize;solNr++){
+			for (int bitNr=0; bitNr<solLength;bitNr++ ){
+				dummySolution[bitNr] = bitGenerator.nextInt(2);
 			}
 			
-			Solution sol = new Solution(solution, fitnessFunction);
-			population.add(sol);
-		}*/
+			population.add(new Solution(dummySolution,fitnessFunction,linkage));	
+		}
 		
-		//runGa(50,new String());
+		population = quickSort(population);
+		Solution best = (Solution) population.get(0);
+		maxFitness = (int) best.fitness;
 	}
 	
 	private ArrayList performTournament(int tournamentSize){
@@ -98,64 +121,100 @@ public class Ga{
 		
 	}
 		
-	public String runGa(String answer){
-		return runGa(100,answer);
+	public int runGa(){
+		generatePopulation();
+		return runGa(0);
 	}
 	
-	private String runGa(int nrOfTimes,String answer){
-		if (nrOfTimes > 0) {
-			
-			/* For a parameter setting
-			 *   instantiate a random population (with x solutions)
-			 */
-		    int[] dummySolution = new int[100];
-			Random bitGenerator = new Random();
-			for (int popNr=0;popNr<popSize;popNr++){
-				for (int solNr=0; solNr<100;solNr++ ){
-					dummySolution[solNr] = bitGenerator.nextInt(2);
-				}
-				population.add(new Solution(dummySolution,fitnessFunction));	
+	private int runGa(int nrOfGen){
+		//+ unchanged condition for 10*popSize runs
+		if ((nrOfGen < nrOfGenerations) && (bestFitness < maxFitness)) {
+			ArrayList parentPool = performTournament(tourSize);
+		    ArrayList childPool = new ArrayList();
+		    
+		    // puur omdat switch niet met doubles werkt
+		    int pc = (int) (2*probCross);
+			    	
+			for (int solId=0; solId<popSize; solId+=2){
+		    	
+				// perform operators
+		    	switch(pc){
+		 	   		case 0:
+		 	   			// crossover		   	
+		 	   		case 1:
+		 	   			if (bitGenerator.nextFloat() <0.5){
+		 	   				// crossover
+		 	   			}
+		 	   			else {
+		 	   				// mutation
+		 	   				//population.set(solId,mutation((Solution)population.get(solId))); 
+		    		} 
+		 	   		case 2:
+		 	   			// mutation
+		 	   		default:
+		 	   			break;
+		    	}	 
+		    	// compute fitnesses of these two children
+		    	// add children to childpool
 			}
-			 /*
-			 *   get maxFitness for the current case*/
-		     int T = Solution.getMaxFitness(fitnessFunction);
-		     
-		     while(T==T){ //+ unchanged condition for 10*popSize runs
-		    	 ArrayList parentPool = performTournament(tourSize);
-		    	 for (int solId=0;solId<popSize;solId+=2){
-		    		 if (bitGenerator.nextFloat() <0.5){
-			    		 //do crossover
-		    			 
-			    	 } else {
-			    		 //do mutation
-			    		 //population.set(solId,mutation((Solution)population.get(solId)));
-			    		 
-			    	 }
-		    		 
-		    		 
-		    		 
-		    	 }
 		    	 
-		    	 
-		    	 //crossOver();
-		    	 //mutation();
-		    	 //creation of children pool
-		     }
-		     
-			 /*   do while unchanged < 10*popsize or T=INTEGER.MAX_VALUE
-			 *     selection through tournament of size s
-			 *     apply crossover
-			 *     apply mutation
-			 *     select childpool (best popsize) (also update 'unchanged' and T)
-			 * 
-			 *   Repeate the above 50 times!
-			 */
-		     
-		     int runnr= 50 - nrOfTimes;
-		     answer= answer.concat("Run nr 50 - Succes!");
-		     return runGa(nrOfTimes-1,answer);
-		} else {
-			return answer;
+			// sort childpool
+			// update unchanged
+			// add childpool to population
+			// take the (popSize) best
+			runGa(nrOfGen-1);
+		} 
+		else {
+			return nrOfGen;
 		}
+		return nrOfGen;
 	}
+	
+	public ArrayList quickSort(ArrayList pop){
+		int length = pop.size();
+		int pivot = 0;
+		int ind = length/2;
+		int i,j = 0,k = 0;
+		
+		if(length<2){
+			return pop;
+		}
+		else{
+			ArrayList L = new ArrayList();
+			ArrayList R = new ArrayList();
+			ArrayList sorted = new ArrayList();
+			Solution solution = (Solution) pop.get(ind);
+			pivot = solution.fitness;
+			
+			for(i=0;i<length;i++){
+				if(i!=ind){
+					Solution sol = (Solution) pop.get(i);
+					int fitness = sol.fitness;
+					
+					if(fitness < pivot){
+						L.set(j, solution);
+						j++;
+						}
+					else{
+						R.set(k, solution);
+						k++;
+					}
+				}
+			}
+		 ArrayList sortedL = new ArrayList();
+		 ArrayList sortedR = new ArrayList();
+		 L.addAll(sortedL);
+		 R.addAll(sortedR);
+		 sortedL = quickSort(sortedL);
+		 sortedR = quickSort(sortedR);
+		 sortedL.addAll(sorted);
+		 sorted.set(j, solution);
+		 sortedR.addAll(sorted);
+		 
+		 return sorted;
+		 }
+	}
+
+
+
 }
