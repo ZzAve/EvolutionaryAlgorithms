@@ -37,6 +37,7 @@ public class Ga{
 		changed = true;
 	}
 	
+	
 	private void generatePopulation(){
 		
 		// instantiate a random population (with x solutions)
@@ -89,8 +90,26 @@ public class Ga{
 		return winners;
 	}
 	
-	private void crossOver(Solution sol1,Solution sol2){
-		// what strategy?
+	private ArrayList crossOver(Solution parent1,Solution parent2){
+		int[] child1 = new int[solLength];
+		int[] child2 = new int[solLength];
+		ArrayList children = new ArrayList();
+		
+		for(int bit=0; bit<solLength; bit++) {
+			int rand = bitGenerator.nextInt(2);
+			if(rand==0) {
+				child1[bit] = parent1.bitString[bit];
+				child2[bit] = parent2.bitString[bit];
+			}
+			else {
+				child1[bit] = parent1.bitString[bit];
+				child2[bit] = parent2.bitString[bit];
+			}
+		}
+		
+		children.add(new Solution(child1, fitnessFunction, linkage));
+		children.add(new Solution(child2, fitnessFunction, linkage));
+		return children;
 	}
 	
 	private Solution mutation(Solution sol){
@@ -102,7 +121,7 @@ public class Ga{
 		
 		//Pick  random numbers!
 		int[] mutations = new int[nrOfMutations];
-		int nb_picked =0;
+		int nb_picked = 0;
 		int index;
 		while (nb_picked < nrOfMutations){
 		   index = randomNr.nextInt(100);
@@ -121,9 +140,23 @@ public class Ga{
 		
 	}
 		
-	public int runGa(){
-		generatePopulation();
-		return runGa(0);
+	public ArrayList runGa(){
+		
+		// result consists of number of optimum found, number of generations (and maybe highest fitness)
+		int numOpt = 0;
+		int numGen = 0;
+		ArrayList result = new ArrayList();
+		
+		for(int run=0; run<50; run++){
+			generatePopulation();
+			int gen = runGa(0);
+			// update numOpt and numGen
+		}
+		
+		result.add(numOpt);
+		result.add(numGen);
+
+		return result;
 	}
 	
 	private int runGa(int nrOfGen){
@@ -135,28 +168,38 @@ public class Ga{
 		    // puur omdat switch niet met doubles werkt
 		    int pc = (int) (2*probCross);
 			    	
-			for (int solId=0; solId<popSize; solId+=2){
-		    	
-				// perform operators
-		    	switch(pc){
-		 	   		case 0:
-		 	   			// crossover		   	
-		 	   		case 1:
-		 	   			if (bitGenerator.nextFloat() <0.5){
-		 	   				// crossover
+			// perform operators
+		    switch(pc){
+		 		case 0:
+		 	 		for (int solId=0; solId<popSize; solId+=2){
+		 			    // crossover
+		 	 			// compute fitness and add to childpool
+		 	 		}
+		 	   	case 1:
+		 	   		if (bitGenerator.nextFloat() <0.5){
+		 	   			for (int solId=0; solId<popSize; solId+=2){
+		 	   				//ArrayList children = crossOver(parentPool.get(solId), parentPool.get(solId+1));
+		 	   				//Solution child1 = children.get(0);
+		 	   				//Solution child2 = children.get(1);
+		 	   				// add to childpool
 		 	   			}
-		 	   			else {
+		 	   		}
+		 	   		else {
+		 	   			for (int solId=0; solId<popSize; solId++){
 		 	   				// mutation
-		 	   				//population.set(solId,mutation((Solution)population.get(solId))); 
-		    		} 
+		 	   				// compute fitness and add to childpool 
+		 	   				// population.set(solId,mutation((Solution)population.get(solId))); 
+		 	   			}
+		 	   		} 
 		 	   		case 2:
-		 	   			// mutation
-		 	   		default:
-		 	   			break;
-		    	}	 
-		    	// compute fitnesses of these two children
-		    	// add children to childpool
-			}
+		 	   			for (int solId=0; solId<popSize; solId++){
+		 	   				// mutation
+		 	   				// compute fitness and add to childpool population.set(solId,mutation((Solution)population.get(solId))); 
+		 	   			}
+		 	   	default:
+		 	   		break;
+		    }	 
+		    
 		    	 
 			// sort childpool
 			// update unchanged
