@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /* For a parameter setting
  *   instantiate a random population (with x solutions)
  *   get maxFitness for the current case
@@ -27,16 +29,14 @@ public class Main{
 		int crossoverType = 1;			// 1=2point, 2=uniform
 		
 		// Perform GA
-		for(int run=0; run<50; run++){
 			
-			Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
-			
-			// number of generations after the global optimum was found
-			// if value is .., no optimum found
-			int timeUntilOpt = ga.runGa();
+		Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
+		//	
+		// number of generations after the global optimum was found
+		ArrayList result = ga.runGa();
 			
 			// print result
-		}
+		
 		
 	}
 
