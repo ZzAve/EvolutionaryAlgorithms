@@ -22,7 +22,7 @@ public class Main{
 		// We moeten allerlei combinaties van parameter values afgaan, maar heb nog voor het gemak 1 variant.
 		int solutionLength = 100;
 		int populationSize = 100;		// multiple of 10
-		int tournamentSize = 1;			// 1 or 2
+		int tournamentSize = 2;			// 1 or 2
 		int fitnessFunctionType = 1;	// 1,2,3,4
 		int linkageType = 1;			// 1=tight, 2=random
 		double probCrossover = 0;		// 0, 0.5, 1

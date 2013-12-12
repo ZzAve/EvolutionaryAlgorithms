@@ -19,7 +19,7 @@ public class Ga{
 	private int bestFitness;		// current best fitness of population
 	private int maxFitness;			// highest fitness value possible (given fitness function)
 	Random bitGenerator;
-	boolean changed;				// keeps track of change in population
+	int unchanged;				// keeps track of change in population
 	
 	public Ga(int solutionLength, int populationSize, int tournamentSize, int fitnessFunctionType, int linkageType, double probCrossover, int crossoverType){
 		
@@ -34,7 +34,9 @@ public class Ga{
 		bestFitness = 0;
 		maxFitness = Solution.getMaxFitness(fitnessFunction);
 		bitGenerator = new Random();
-		changed = true;
+		
+		unchanged = 0;
+		population = new ArrayList();
 	}
 	
 	
@@ -53,7 +55,7 @@ public class Ga{
 		
 		population = quickSort(population);
 		Solution best = (Solution) population.get(0);
-		maxFitness = (int) best.fitness;
+		bestFitness = (int) best.getFitness();
 	}
 	
 	private ArrayList performTournament(int tournamentSize){
@@ -98,12 +100,12 @@ public class Ga{
 		for(int bit=0; bit<solLength; bit++) {
 			int rand = bitGenerator.nextInt(2);
 			if(rand==0) {
-				child1[bit] = parent1.bitString[bit];
-				child2[bit] = parent2.bitString[bit];
+				child1[bit] = parent1.getSolution()[bit];
+				child2[bit] = parent2.getSolution()[bit];
 			}
 			else {
-				child1[bit] = parent1.bitString[bit];
-				child2[bit] = parent2.bitString[bit];
+				child1[bit] = parent2.getSolution()[bit];
+				child2[bit] = parent1.getSolution()[bit];
 			}
 		}
 		
@@ -113,6 +115,7 @@ public class Ga{
 	}
 	
 	private Solution mutation(Solution sol){
+		Solution mutatedSol = new Solution(sol.getSolution(),fitnessFunction,linkage);
 		Random randomNr = new Random();
 		int nrOfMutations=0;
 		while (randomNr.nextFloat()<0.5 ){
@@ -135,8 +138,8 @@ public class Ga{
 			  if(!found)
 				  mutations[nb_picked]=index;
 		} 
-		sol.mutateSolution(mutations);
-		return sol;
+		mutatedSol.mutateSolution(mutations);
+		return mutatedSol;
 		
 	}
 		
@@ -147,24 +150,26 @@ public class Ga{
 		int numGen = 0;
 		ArrayList result = new ArrayList();
 		
-		for(int run=0; run<50; run++){
+		for(int run=0; run<1; run++){
 			generatePopulation();
+			unchanged=0;
+			Solution.resetIds();
 			int gen = runGa(0);
 			// update numOpt and numGen
 		}
 		
-		result.add(numOpt);
-		result.add(numGen);
+		//result.add(numOpt);
+		//result.add(numGen);
 
 		return result;
 	}
 	
 	private int runGa(int nrOfGen){
 		//+ unchanged condition for 10*popSize runs
-		if ((nrOfGen < nrOfGenerations) && (bestFitness < maxFitness)) {
+		if ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)) {
 			ArrayList parentPool = performTournament(tourSize);
 		    ArrayList childPool = new ArrayList();
-		    
+		    childPool.addAll(parentPool);
 		    // puur omdat switch niet met doubles werkt
 		    int pc = (int) (2*probCross);
 			    	
@@ -175,13 +180,13 @@ public class Ga{
 		 			    // crossover
 		 	 			// compute fitness and add to childpool
 		 	 		}
+		 	 		break;
 		 	   	case 1:
 		 	   		if (bitGenerator.nextFloat() <0.5){
 		 	   			for (int solId=0; solId<popSize; solId+=2){
-		 	   				//ArrayList children = crossOver(parentPool.get(solId), parentPool.get(solId+1));
-		 	   				//Solution child1 = children.get(0);
-		 	   				//Solution child2 = children.get(1);
-		 	   				// add to childpool
+		 	   				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+		 	   				childPool.addAll(children);
+		 	   				
 		 	   			}
 		 	   		}
 		 	   		else {
@@ -191,7 +196,8 @@ public class Ga{
 		 	   				// population.set(solId,mutation((Solution)population.get(solId))); 
 		 	   			}
 		 	   		} 
-		 	   		case 2:
+		 	   		break;
+		 	   	case 2:
 		 	   			for (int solId=0; solId<popSize; solId++){
 		 	   				// mutation
 		 	   				// compute fitness and add to childpool population.set(solId,mutation((Solution)population.get(solId))); 
@@ -200,12 +206,21 @@ public class Ga{
 		 	   		break;
 		    }	 
 		    
-		    	 
+		    
+		    childPool = quickSort(childPool);
+		    childPool.subList(0,popSize-1);
+		    
+		    if (((Solution) childPool.get(popSize-1)).getId()== 
+		    	   ((Solution)parentPool.get(popSize-1)).getId()){
+		    	unchanged+=1;
+		    } else {
+		    	unchanged =0;
+		    }
 			// sort childpool
 			// update unchanged
 			// add childpool to population
 			// take the (popSize) best
-			runGa(nrOfGen-1);
+			//runGa(nrOfGen+1);
 		} 
 		else {
 			return nrOfGen;
@@ -215,44 +230,48 @@ public class Ga{
 	
 	public ArrayList quickSort(ArrayList pop){
 		int length = pop.size();
-		int pivot = 0;
+		System.out.println("Size of pop is "+pop.size());
+		int pivot;
 		int ind = length/2;
-		int i,j = 0,k = 0;
-		
+		System.out.print(" index: "+ind);
 		if(length<2){
 			return pop;
 		}
 		else{
+			
 			ArrayList L = new ArrayList();
 			ArrayList R = new ArrayList();
 			ArrayList sorted = new ArrayList();
 			Solution solution = (Solution) pop.get(ind);
-			pivot = solution.fitness;
+			pivot = solution.getFitness();
 			
-			for(i=0;i<length;i++){
+			for(int i=0;i<length;i++){
 				if(i!=ind){
 					Solution sol = (Solution) pop.get(i);
-					int fitness = sol.fitness;
+					int fitness = sol.getFitness();
 					
-					if(fitness < pivot){
-						L.set(j, solution);
-						j++;
+					if(fitness > pivot){
+						L.add(solution);
+					} else if (fitness < pivot){
+						R.add(solution);
+					} else { // fitness == pivot
+						System.out.print(" FITNESS == PIVOT  ");
+						if (sol.getId() > solution.getId()){
+							L.add(solution);
+						} else {
+							R.add(solution);
 						}
-					else{
-						R.set(k, solution);
-						k++;
 					}
 				}
-			}
-		 ArrayList sortedL = new ArrayList();
-		 ArrayList sortedR = new ArrayList();
-		 L.addAll(sortedL);
-		 R.addAll(sortedR);
-		 sortedL = quickSort(sortedL);
-		 sortedR = quickSort(sortedR);
-		 sortedL.addAll(sorted);
-		 sorted.set(j, solution);
-		 sortedR.addAll(sorted);
+			} // end for loop
+		 System.out.print("Going deeper! Size of L:"+L.size()+ " Size of R:"+R.size());
+		 L = quickSort(L);
+		 R = quickSort(R);
+		 
+		 //----
+		 sorted.addAll(L);
+		 sorted.add(solution);
+		 sorted.addAll(R);
 		 
 		 return sorted;
 		 }

@@ -11,17 +11,21 @@ import java.util.Random;
  */
 public class Solution{
 	
-	int[] bitString; 
-	int fitness;
-	static int solLength;
-	int functionType;
-	int linkage;
+	private int[] bitString; 
+	private int fitness;
+	private static int solLength;
+	private int functionType;
+	private int linkage;
+	private static int idTotal=0;
+	private int id;
 	
 	public Solution(int[] bitStringSolution, int type, int link){
 		bitString = bitStringSolution;
 		solLength = bitString.length;
 		functionType = type;
 		linkage = link;
+		id = idTotal++;
+		System.out.println("Id of new solution: "+id);
 		setFitness(bitString, type, linkage);
 		
 	}
@@ -113,6 +117,15 @@ public class Solution{
 	
 	public void setFitness(int[] bitString, int functionType, int linkage){
 		fitness = calcFitness(bitString, functionType, linkage);
+	}
+	
+	public int getId(){
+		return id;
+	}
+	
+	public static void resetIds(){
+		idTotal=0;
+		System.out.println("Ids are reset to 0!");
 	}
 	
 	public void mutateSolution(int[] indices){
