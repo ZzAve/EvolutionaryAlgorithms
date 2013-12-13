@@ -50,10 +50,25 @@ public class Ga{
 				dummySolution[bitNr] = bitGenerator.nextInt(2);
 			}
 			
-			population.add(new Solution(dummySolution,fitnessFunction,linkage));	
+			population.add(new Solution(dummySolution,fitnessFunction,linkage));
 		}
 		
+		System.out.println("Fitnesses: ");
+		for(int solNr=0;solNr<popSize;solNr++) {
+			Solution sol = (Solution) population.get(solNr);
+			System.out.println((int) sol.getFitness());
+		}
+		System.out.println("Fitnesses ");
+		
 		population = quickSort(population);
+		
+		System.out.println("Fitnesses: ");
+		for(int solNr=0;solNr<popSize;solNr++) {
+			Solution sol = (Solution) population.get(solNr);
+			System.out.println((int) sol.getFitness());
+		}
+		System.out.println("Fitnesses ");
+		
 		Solution best = (Solution) population.get(0);
 		bestFitness = (int) best.getFitness();
 	}
@@ -88,6 +103,12 @@ public class Ga{
 			  break;
 		  default:
 			  break;
+		}
+
+		System.out.println("Tour fitnesses: ");
+		
+		for(int i=0; i<winners.size(); i++) {
+			System.out.println(((Solution)winners.get(i)).getFitness());
 		}
 		return winners;
 	}
@@ -153,11 +174,12 @@ public class Ga{
 		for(int run=0; run<1; run++){
 			generatePopulation();
 			unchanged=0;
-			Solution.resetIds();
+			
 			int gen = runGa(0);
 			// update numOpt and numGen
+			Solution.resetIds();
+			
 		}
-		
 		//result.add(numOpt);
 		//result.add(numGen);
 
@@ -229,15 +251,15 @@ public class Ga{
 	}
 	
 	public ArrayList quickSort(ArrayList pop){
+		
 		int length = pop.size();
-		System.out.println("Size of pop is "+pop.size());
-		int pivot;
-		int ind = length/2;
-		System.out.print(" index: "+ind);
+				
 		if(length<2){
 			return pop;
 		}
 		else{
+			int pivot;
+			int ind = length/2;
 			
 			ArrayList L = new ArrayList();
 			ArrayList R = new ArrayList();
@@ -251,22 +273,23 @@ public class Ga{
 					int fitness = sol.getFitness();
 					
 					if(fitness > pivot){
-						L.add(solution);
+						L.add(sol);
 					} else if (fitness < pivot){
-						R.add(solution);
+						R.add(sol);
+						
 					} else { // fitness == pivot
-						System.out.print(" FITNESS == PIVOT  ");
 						if (sol.getId() > solution.getId()){
-							L.add(solution);
+							L.add(sol);
 						} else {
-							R.add(solution);
+							R.add(sol);
+							System.out.println("R.size = " + L.size());
 						}
 					}
 				}
 			} // end for loop
-		 System.out.print("Going deeper! Size of L:"+L.size()+ " Size of R:"+R.size());
-		 L = quickSort(L);
-		 R = quickSort(R);
+			
+			L = quickSort(L);
+			R = quickSort(R);
 		 
 		 //----
 		 sorted.addAll(L);
