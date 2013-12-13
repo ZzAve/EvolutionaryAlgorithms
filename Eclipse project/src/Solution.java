@@ -25,7 +25,6 @@ public class Solution{
 		functionType = type;
 		linkage = link;
 		id = idTotal++;
-		System.out.println("Id of new solution: "+id);
 		setFitness(bitString, type, linkage);
 		
 	}
