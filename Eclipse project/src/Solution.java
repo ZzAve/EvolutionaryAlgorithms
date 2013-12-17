@@ -13,7 +13,7 @@ public class Solution{
 	
 	private int[] bitString; 
 	private int fitness;
-	private static int solLength;
+	private static int solLength=100;
 	private int functionType;
 	private int linkage;
 	private static int idTotal=0;
@@ -151,5 +151,11 @@ public class Solution{
 	      bits[i] = bit;
 	    }
 	  }
-	
+
+	public String toString(){
+		String answer="Solution<"+getId()+", ";
+		
+		answer+=getFitness()+">";	
+		return answer;
+	}
 }
