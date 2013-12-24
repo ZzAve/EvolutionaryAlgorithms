@@ -13,7 +13,7 @@ public class Solution{
 	
 	private int[] bitString; 
 	private int fitness;
-	private static int solLength=100;
+	private static int solLength = 100;
 	private int functionType;
 	private int linkage;
 	private static int idTotal=0;
@@ -24,16 +24,23 @@ public class Solution{
 		solLength = bitString.length;
 		functionType = type;
 		linkage = link;
-		id = idTotal++;
-		setFitness(bitString, type, linkage);
+		idTotal++;
+		id = idTotal;
+		setFitness(bitString, functionType, linkage);
 		
 	}
 	
-	public int[] getSolution(){
-		return bitString;
+	public int[] getBitString(){
+		return bitString;  
 	}
 	public int getFitness(){
 		return fitness;
+	}
+	public int getLinkage(){
+		return linkage;
+	}
+	public int getType(){
+		return functionType;
 	}
 	
 	public static int getMaxFitness(int functionType){
@@ -128,11 +135,18 @@ public class Solution{
 	}
 	
 	public void mutateSolution(int[] indices){
-		for (int i=0;i<indices.length;i++){
-			if (bitString[i]==0){
-				bitString[i]=1;
-			} else {
-				bitString[i]=0;
+		for(int j=0; j<solLength; j++) {
+			boolean mut = false;
+			for (int i=0;i<indices.length;i++){
+				if(j==indices[i]) mut = true;
+			}
+			
+			if(mut==true) {
+				if (bitString[j]==0){
+					bitString[j]=1;
+				} else {
+				bitString[j]=0;
+				}
 			}
 		}
 		setFitness(bitString,functionType,linkage);
