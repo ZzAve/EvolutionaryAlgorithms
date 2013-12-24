@@ -56,13 +56,15 @@ public class Ga{
 			population.add(new Solution(dummySolution,fitnessFunction,linkage));
 		}
 		
+		System.out.println();
 		System.out.print("Fitnesses before: ");
 		for(int solNr=0;solNr<popSize;solNr++) {
 			Solution sol = (Solution) population.get(solNr);
 			System.out.print(sol.getFitness()+", ");
 		}
-		System.out.println();
-		System.out.print("Sorting: ");
+		
+		//System.out.println();
+		//System.out.print("Sorting: ");
 		population = quickSort(population);
 		System.out.println();
 		System.out.print("Fitnesses after: ");
@@ -70,30 +72,33 @@ public class Ga{
 			Solution sol = (Solution) population.get(solNr);
 			System.out.print(sol.getFitness()+", ");
 		}
-		System.out.println();
+		//System.out.println();
 		Solution best = (Solution) population.get(0);
 		bestFitness = (int) best.getFitness();
 	}
 	
 	
-	private ArrayList performTournament2(int tournamentSize,int requestedNr){
+	//private ArrayList performTournament2(int tournamentSize,int requestedNr){
+	private ArrayList performTournament2(int tournamentSize){
 		ArrayList winners = new ArrayList();
 		Random randomNr = new Random();
+
 		switch (tournamentSize){
 		case 1: 
 			//random
-			for (int i=0;i<requestedNr;i++){
-				winners.add(population.get(randomNr.nextInt(population.size())));
+			for (int poolEntry=0;poolEntry<popSize;poolEntry++){
+				winners.add(population.get(randomNr.nextInt(popSize)));
 			}
 			break;
 		case 2:
 			// let two units fight
-			for (int i=0;i<requestedNr;i++){
+			for (int i=0;i<popSize;i++){
 				int sol1, sol2;
-				sol1 = randomNr.nextInt(solLength);
-				sol2 = randomNr.nextInt(solLength);
+				sol1 = randomNr.nextInt(popSize); 
+				sol2 = randomNr.nextInt(popSize);
+		
 				while (sol1 == sol2){
-					sol2 = randomNr.nextInt(solLength);
+					sol2 = randomNr.nextInt(popSize);
 				}
 				if (((Solution) population.get(sol1)).getFitness() >= 
 					    ((Solution) population.get(sol2)).getFitness()){
@@ -102,6 +107,7 @@ public class Ga{
 				} else {
 					winners.add(population.get(sol2));
 				}
+	
 			}
 			break;
 		default:
@@ -128,11 +134,11 @@ public class Ga{
 		  case 2:
 			  ArrayList tournPop = (ArrayList) population.clone();
 			  for (int round=1;round<3;round++){
-				//System.out.println("The population before shuffling:");
-				//System.out.println(tournPop.toString());
+				System.out.println("The population before shuffling:");
+				System.out.println(tournPop.toString());
 				Collections.shuffle(tournPop);
-				//System.out.println("The population after shuffling:");
-				//System.out.println(tournPop.toString());
+				System.out.println("The population after shuffling:");
+				System.out.println(tournPop.toString());
 				
 				for (int fighter1=0; fighter1<popSize-1; fighter1+=2){
 					if (((Solution)tournPop.get(fighter1)).getFitness() <= 
@@ -165,12 +171,12 @@ public class Ga{
 		for(int bit=0; bit<solLength; bit++) {
 			int rand = bitGenerator.nextInt(2);
 			if(rand==0) {
-				child1[bit] = parent1.getSolution()[bit];
-				child2[bit] = parent2.getSolution()[bit];
+				child1[bit] = parent1.getBitString()[bit];
+				child2[bit] = parent2.getBitString()[bit];
 			}
 			else {
-				child1[bit] = parent2.getSolution()[bit];
-				child2[bit] = parent1.getSolution()[bit];
+				child1[bit] = parent2.getBitString()[bit];
+				child2[bit] = parent1.getBitString()[bit];
 			}
 		}
 		
@@ -178,35 +184,40 @@ public class Ga{
 		children.add(new Solution(child1, fitnessFunction, linkage));
 		children.add(new Solution(child2, fitnessFunction, linkage));
 		
-		/*if (sol1.getFitness() >= sol1.getFitness()){
-			return sol1;
-		} else {
-			return sol2;
-		}*/
-		
-		
+	
 		System.out.print(" Crossover: p1:"+parent1.getFitness()+" p2:"+parent2.getFitness());
 		System.out.print(" Child1:"+((Solution) children.get(0)).getFitness()+" child2:"+((Solution) children.get(1)).getFitness());
 		return children;
 	}
 	
 	private Solution mutation(Solution sol){
-		Solution mutatedSol = new Solution(sol.getSolution(),fitnessFunction,linkage);
+		
 		Random randomNr = new Random();
 		int nrOfMutations=0;
+		Solution mutatedSol = new Solution(sol.getBitString(),sol.getType(),sol.getLinkage());
+		
 		
 		while (randomNr.nextFloat() <0.5 ){
 			nrOfMutations++;
 		}
-		if (nrOfMutations>0){
+		
+		if (nrOfMutations==0){
+			return mutatedSol;
+		}
+		else {
+			
 			//Pick  random numbers!
+			
 			int[] mutations = new int[nrOfMutations];
-			mutations[0]=randomNr.nextInt(100);
-			int nb_picked = 1;
+				for(int i=0; i<nrOfMutations; i++) {
+					mutations[0]=randomNr.nextInt(solLength);
+				}
+				
+			int nb_picked = 0;
 			int index;
-			boolean found;
+			boolean found = false;
 			while (nb_picked < nrOfMutations){
-			   index = randomNr.nextInt(100);
+			   index = randomNr.nextInt(solLength);
 			   found=false;
 			   for(int i=0;i<nb_picked;i++){
 				  if(mutations[i]==index){
@@ -219,10 +230,14 @@ public class Ga{
 				  nb_picked++;
 			   }
 			}
-			mutatedSol.mutateSolution(mutations);
+			
+			
+			
+			sol.mutateSolution(mutations);
+			
 		}
 		
-		System.out.print(" Mutation: p:"+sol.getFitness()+" child:"+mutatedSol.getFitness());
+				
 		return mutatedSol;
 		
 	}
@@ -266,7 +281,7 @@ public class Ga{
 					}
 				}
 			} // end for loop
-			System.out.print(" Going deeper once more ");
+			
 			L = quickSort(L);
 			R = quickSort(R);
 		 
@@ -309,24 +324,25 @@ public class Ga{
 	}
 	public ArrayList runGa(){
 		
-		// result consists of number of optimum found, number of generations (and maybe highest fitness)
+		// result consists of number of optima found, number of generations (and maybe highest fitness)
 		int numOpt = 0;
 		int numGen = 0;
 		ArrayList result = new ArrayList();
-		
+	
 		for(int run=0; run<1; run++){
-			System.out.print("Run "+run+ "(");
+			System.out.println("Run "+run+ "(");
 			Solution.resetIds();
 			generatePopulation();
+			
 			unchanged=0;
 			
 			int gen = runGa(0);
-			// update numOpt and numGen
-			
+			if(bestFitness==maxFitness) numOpt++;
+			// update numGen (list of # of generations for all runs?)
 			
 		}
-		//result.add(numOpt);
-		//result.add(numGen);
+		result.add(numOpt);
+		result.add(numGen);
 
 		return result;
 	}
@@ -397,79 +413,79 @@ public class Ga{
 	}
 	
 	private int runGa(int nrOfGen){
-		System.out.print("| Gen: "+nrOfGen);
+		System.out.println();
+		System.out.print("Gen: "+nrOfGen);
 		//+ unchanged condition for 10*popSize runs
 		System.out.print(" unchanged < nrOfGenerations "+unchanged + " < "+ nrOfGenerations);
 		System.out.println("|| bestFitness < maxFitness " + bestFitness + " < "+maxFitness);
 		
-		if ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)) {
-			ArrayList parentPool = performTournament(tourSize);
-		    ArrayList childPool = new ArrayList(200);
-		    childPool.addAll(parentPool);
+		if ((unchanged < 1) && (bestFitness < maxFitness)) {
+		//if ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)) {
+	
+			ArrayList parentPool = performTournament2(tourSize);
+			ArrayList childPool = new ArrayList();
+			//childPool.addAll(parentPool);
 		    System.out.println();
-		    System.out.println("The parentpool: "+parentPool.toString());
 		    
-		    // puur omdat switch niet met doubles werkt
+		    System.out.println("Average fitness population: " + averageFitness(population));
+		    System.out.println("Average fitness parents: " + averageFitness(parentPool));
+		    //System.out.println("The parentpool: "+parentPool.toString());
+		    
+		    // omdat switch niet met doubles werkt
 		    int pc = (int) (2*probCross);
 			    	
 			// perform operators
 		    System.out.println("PC = "+pc+" and popSize="+popSize);
-		    switch(pc){
-		 		case 0:
-		 	 		for (int solId=0; solId < popSize; solId++){
-		 			    // mutation
-		 	 			// compute fitness and add to childpool
-		 	 			Solution child = mutation((Solution)parentPool.get(solId));
-	 	   				childPool.add(child); 
-		 	 		}
-		 	 		break;
-		 	   	case 1:
-		 	   		for (int solId=0; solId<popSize-1; solId+=2){
-		 	   			if (bitGenerator.nextFloat() <0.5){
-		 	   				// do crossover
-		 	   				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
-		 	   				childPool.addAll(children);
-		 	   				
-		 	   			} else{
-		 	   				// do mutation
-		 	   				Solution child1 = mutation((Solution)parentPool.get(solId));
-		 	   				Solution child2 = mutation((Solution)parentPool.get(solId+1));
-		 	   				childPool.add(child1); 
-		 	   				childPool.add(child2);
-		 	   			}
-		 	   		}
-		 	   		break;
-		 	   	case 2:
-		 	   			for (int solId=0; solId<popSize-1; solId+=2){
-		 	   				// crossover
-		 	   				// compute fitness and add to childpool population.set(solId,mutation((Solution)population.get(solId)));
-		 	   				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
-		 	   				childPool.addAll(children);
-		 	   			}
-		 	   	default:
-		 	   		break;
-		    }
-		    System.out.println();
-		    System.out.println("I get here?");
 		    
-		    System.out.println("Sorting childpool, then cutting it in half");
-		    childPool = quickSort(childPool);
+		    for (int solId=0; solId<popSize-1; solId+=2){
+		    	switch(pc){
+		 			case 0:
+		 	 			childPool.add(mutation((Solution)parentPool.get(solId)));
+		 	 			childPool.add(mutation((Solution)parentPool.get(solId)));
+		 	 			break;
+		  			case 2:
+		  				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+		  				childPool.add(children.get(0));
+		  				childPool.add(children.get(1));
+		  				break;
+		 	   		case 1:
+		 	   		
+		 	   			if (bitGenerator.nextFloat() <0.5){
+		 	   				ArrayList children2 = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+		 	   				childPool.add(children2.get(0));
+		 	   				childPool.add(children2.get(1));
+		 	   			} else{
+		 	   				ArrayList children2 = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+		 	   				childPool.add(children2.get(0));
+		 	   				childPool.add(children2.get(1));
+		 	   			}
+		 	   			default:
+		 	   				break;
+		 	   		}
+		 	   		
+		    }
+				
 		    System.out.println();
-		    System.out.println(childPool.toString());
+		    System.out.println("Average fitness of childPool: " + averageFitness(childPool));
+		    System.out.println("Sorting childpool, then cutting it in half");
+		    childPool.addAll(parentPool);
+		    childPool = quickSort(childPool);
+		    //System.out.println();
+		    //System.out.println(childPool.toString());
 		    childPool.subList(popSize,childPool.size()).clear();
-		    System.out.println(childPool.toString());
-		    System.out.println("childPool?");
+		    //System.out.println(childPool.toString());
+		    System.out.println("Average fitness of new population: " + averageFitness(childPool));
 		    if (((Solution) childPool.get(popSize-1)).getId()== 
 		    	   ((Solution)parentPool.get(popSize-1)).getId()){
 		    	unchanged+=1;
 		    } else {
 		    	unchanged =0;
 		    }
-			// sort childpool
-			// update unchanged
-			// add childpool to population
-			// take the (popSize) best
-			//runGa(nrOfGen+1);
+			
+		    population = childPool;
+		    bestFitness = ((Solution)population.get(0)).getFitness();
+			
+			runGa(nrOfGen+1);
 		} 
 		else {
 			return nrOfGen;
@@ -477,6 +493,16 @@ public class Ga{
 		return nrOfGen;
 	}
 	
+	public int averageFitness(ArrayList solutions) {
+
+		int sumFitness = 0;
+		
+		for(int i=0; i<solutions.size(); i++) {
+			sumFitness += ((Solution)solutions.get(i)).getFitness();
+		}
+					
+		return (int) (sumFitness/solutions.size());
+	}
 
 }
 
