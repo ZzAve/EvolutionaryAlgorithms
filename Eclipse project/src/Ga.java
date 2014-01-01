@@ -47,13 +47,22 @@ public class Ga{
 		
 		// instantiate a random population (with x solutions)
 		
-	    int[] dummySolution = new int[solLength];
 		for (int solNr=0;solNr<popSize;solNr++){
+			
+		    int[] dummySolution = new int[solLength];
+		    
 			for (int bitNr=0; bitNr<solLength;bitNr++ ){
 				dummySolution[bitNr] = bitGenerator.nextInt(2);
 			}
 			
-			population.add(new Solution(dummySolution,fitnessFunction,linkage));
+			Solution sol = new Solution(dummySolution,fitnessFunction,linkage);
+			//population.add(new Solution(dummySolution,fitnessFunction,linkage));
+			
+			population.add(sol);
+			
+			//clear memory
+			sol = null;
+			dummySolution = null;
 		}
 		
 		System.out.println();
@@ -419,6 +428,7 @@ public class Ga{
 		System.out.print(" unchanged < nrOfGenerations "+unchanged + " < "+ nrOfGenerations);
 		System.out.println("|| bestFitness < maxFitness " + bestFitness + " < "+maxFitness);
 		
+
 		if ((unchanged < 1) && (bestFitness < maxFitness)) {
 		//if ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)) {
 	
