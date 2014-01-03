@@ -451,7 +451,7 @@ public class Ga{
 		    	switch(pc){
 		 			case 0:
 		 	 			childPool.add(mutation((Solution)parentPool.get(solId)));
-		 	 			childPool.add(mutation((Solution)parentPool.get(solId)));
+		 	 			childPool.add(mutation((Solution)parentPool.get(solId+1)));
 		 	 			break;
 		  			case 2:
 		  				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
