@@ -56,7 +56,6 @@ public class Ga{
 			}
 			
 			Solution sol = new Solution(dummySolution,fitnessFunction,linkage);
-			//population.add(new Solution(dummySolution,fitnessFunction,linkage));
 			
 			population.add(sol);
 			
@@ -192,12 +191,12 @@ public class Ga{
 		}
 		
 		// Create two new solutions, whose bitstring is given by the just calculated one
-		children.add(new Solution(child1, fitnessFunction, linkage));
-		children.add(new Solution(child2, fitnessFunction, linkage));
+		children.add(new Solution(child1.clone(), fitnessFunction, linkage));
+		children.add(new Solution(child2.clone(), fitnessFunction, linkage));
 		
 	
-		System.out.print(" Crossover: p1:"+parent1.getFitness()+" p2:"+parent2.getFitness());
-		System.out.print(" Child1:"+((Solution) children.get(0)).getFitness()+" child2:"+((Solution) children.get(1)).getFitness());
+		//System.out.print(" Crossover: p1:"+parent1.getFitness()+" p2:"+parent2.getFitness());
+		//System.out.print(" Child1:"+((Solution) children.get(0)).getFitness()+" child2:"+((Solution) children.get(1)).getFitness());
 		return children;
 	}
 	
@@ -442,53 +441,49 @@ public class Ga{
 		    System.out.println("Average fitness parents: " + averageFitness(parentPool));
 		    //System.out.println("The parentpool: "+parentPool.toString());
 		    
-		    // omdat switch niet met doubles werkt
-		    int pc = (int) (2*probCross);
-			    	
+		    
 			// perform operators
-		    System.out.println("PC = "+pc+" and popSize="+popSize);
+		    System.out.println("PC = "+probCross+" and popSize="+popSize);
 		    
 		    for (int solId=0; solId<popSize-1; solId+=2){
-		    	switch(pc){
-		 			case 0:
-		 	 			childPool.add(mutation((Solution)parentPool.get(solId)));
-		 	 			childPool.add(mutation((Solution)parentPool.get(solId+1)));
-		 	 			break;
-		  			case 2:
-		  				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
-		  				childPool.add(children.get(0));
-		  				childPool.add(children.get(1));
-		  				break;
-		 	   		case 1:
+		    	if(probCross == 0){
+		    		
+	 	 			childPool.add(mutation((Solution)parentPool.get(solId)));
+	 	 			childPool.add(mutation((Solution)parentPool.get(solId+1)));
+
+		    	} else if(probCross == 1){
+
+	  				ArrayList children = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+	  				childPool.add(children.get(0));
+	  				childPool.add(children.get(1));
+
+		    	} else if(probCross == 0.5){
 		 	   		
-		 	   			if (bitGenerator.nextFloat() <0.5){
-		 	   				ArrayList children2 = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
-		 	   				childPool.add(children2.get(0));
-		 	   				childPool.add(children2.get(1));
-		 	   			} else{
-		 	   				ArrayList children2 = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
-		 	   				childPool.add(children2.get(0));
-		 	   				childPool.add(children2.get(1));
-		 	   			}
-		 	   			default:
-	 	   				break;
-		 	   		}
-		 	   		
+	 	   			if (bitGenerator.nextFloat() <0.5){
+	 	   				ArrayList children2 = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+	 	   				childPool.add(children2.get(0));
+	 	   				childPool.add(children2.get(1));
+	 	   			} else{
+	 	   				ArrayList children2 = crossOver((Solution)parentPool.get(solId), (Solution)parentPool.get(solId+1));
+	 	   				childPool.add(children2.get(0));
+	 	   				childPool.add(children2.get(1));
+	 	   			}
+		 	   	}   		
 		    }
-				
+
+		
 		    System.out.println();
 		    System.out.println("Average fitness of childPool: " + averageFitness(childPool));
 		    System.out.println("Sorting childpool, then cutting it in half");
+		    
 		    childPool.addAll(parentPool);
 		    childPool = quickSort(childPool);
-		    //System.out.println();
-		    //System.out.println(childPool.toString());
 		    childPool.subList(popSize,childPool.size()).clear();
-		    //System.out.println(childPool.toString());
 		    
 		    System.out.println("Average fitness of new population: " + averageFitness(childPool));
-		    if (((Solution) childPool.get(popSize-1)).getId()== 
-		    	   ((Solution)parentPool.get(popSize-1)).getId()){
+		    
+		    if (((Solution) childPool.get(popSize-1)).getFitness()== 
+		    	   ((Solution)parentPool.get(popSize-1)).getFitness()){
 		    	unchanged+=1;
 		    } else {
 		    	unchanged =0;
