@@ -84,6 +84,8 @@ public class Ga{
 		//System.out.println();
 		Solution best = (Solution) population.get(0);
 		bestFitness = (int) best.getFitness();
+		
+		System.out.println();
 	}
 	
 	
@@ -202,8 +204,10 @@ public class Ga{
 	private Solution mutation(Solution sol){
 		
 		Random randomNr = new Random();
-		int nrOfMutations=0;
-		Solution mutatedSol = new Solution(sol.getBitString(),sol.getType(),sol.getLinkage());
+		
+		int nrOfMutations	= 0;
+		
+		Solution mutatedSol = new Solution(sol.getBitString().clone(),sol.getType(),sol.getLinkage());
 		
 		
 		while (randomNr.nextFloat() <0.5 ){
@@ -216,21 +220,23 @@ public class Ga{
 		else {
 			
 			//Pick  random numbers!
-			
 			int[] mutations = new int[nrOfMutations];
-				for(int i=0; i<nrOfMutations; i++) {
-					mutations[0]=randomNr.nextInt(solLength);
-				}
+			
+			for(int i=0; i<nrOfMutations; i++) {
+				mutations[0]=randomNr.nextInt(solLength);
+			}
 				
+			//initialize
 			int nb_picked = 0;
 			int index;
 			boolean found = false;
+			
 			while (nb_picked < nrOfMutations){
-			   index = randomNr.nextInt(solLength);
-			   found=false;
+			   index 	= randomNr.nextInt(solLength);
+			   found	= false;
 			   for(int i=0;i<nb_picked;i++){
 				  if(mutations[i]==index){
-				    	found=true;
+				    	found = true;
 				    	break;
 				  }
 			   }
@@ -239,14 +245,10 @@ public class Ga{
 				  nb_picked++;
 			   }
 			}
-			
-			
-			
-			sol.mutateSolution(mutations);
-			
-		}
-		
 				
+			sol.mutateSolution(mutations);			
+		}
+						
 		return mutatedSol;
 		
 	}
@@ -423,20 +425,19 @@ public class Ga{
 	
 	private int runGa(int nrOfGen){
 		System.out.println();
-		System.out.print("Gen: "+nrOfGen);
+		System.out.print(">>Gen:"+nrOfGen);
 		//+ unchanged condition for 10*popSize runs
-		System.out.print(" unchanged < nrOfGenerations "+unchanged + " < "+ nrOfGenerations);
+		System.out.print(" || unchanged < nrOfGenerations "+unchanged + " < "+ nrOfGenerations);
 		System.out.println("|| bestFitness < maxFitness " + bestFitness + " < "+maxFitness);
 		
 
-		if ((unchanged < 1) && (bestFitness < maxFitness)) {
-		//if ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)) {
+		//if ((unchanged < 1) && (bestFitness < maxFitness)) {
+		if ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)) {
 	
 			ArrayList parentPool = performTournament2(tourSize);
 			ArrayList childPool = new ArrayList();
 			//childPool.addAll(parentPool);
-		    System.out.println();
-		    
+		    //System.out.println();
 		    System.out.println("Average fitness population: " + averageFitness(population));
 		    System.out.println("Average fitness parents: " + averageFitness(parentPool));
 		    //System.out.println("The parentpool: "+parentPool.toString());
@@ -470,7 +471,7 @@ public class Ga{
 		 	   				childPool.add(children2.get(1));
 		 	   			}
 		 	   			default:
-		 	   				break;
+	 	   				break;
 		 	   		}
 		 	   		
 		    }
@@ -484,6 +485,7 @@ public class Ga{
 		    //System.out.println(childPool.toString());
 		    childPool.subList(popSize,childPool.size()).clear();
 		    //System.out.println(childPool.toString());
+		    
 		    System.out.println("Average fitness of new population: " + averageFitness(childPool));
 		    if (((Solution) childPool.get(popSize-1)).getId()== 
 		    	   ((Solution)parentPool.get(popSize-1)).getId()){
@@ -503,7 +505,7 @@ public class Ga{
 		return nrOfGen;
 	}
 	
-	public int averageFitness(ArrayList solutions) {
+	public int averageFitness(ArrayList<Solution> solutions) {
 
 		int sumFitness = 0;
 		
