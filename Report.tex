@@ -1,0 +1,81 @@
+\documentclass[10pt,a4paper,onecolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{kpfonts}
+\usepackage{booktabs}
+\usepackage[left=2.5cm,right=2.5cm,top=2cm,bottom=3cm,footskip=1.7cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{alltt}
+\usepackage{xfrac}
+\usepackage{tikz}
+\setlength\parindent{0pt}
+
+% change headers and footers (package fancyhdr)
+\pagestyle{fancy}
+\fancyhf[HL]{}
+%fancyhf[HR]{Utrecht University}
+\fancyhf[FR]{\thepage ~of \pageref{LastPage}}
+\fancyhf[FC]{INFO-EA Evolutionary Computing \\ Utrecht University}
+\fancyhf[FL]{Julius van Dis\\ 4038010 \and \\ Myrna van de Burgwal \\ 3296725}
+
+
+
+% document info
+\title{Analysis on the performance of a genetic algorithm}
+\author{Julius \textsc{van Dis} \\ 4038010 \\vandis.j@gmail.com
+\and Myrna \textsc{van de Burgwal} \\ 3296725 \\myrnavandeburgwal@gmail.com}
+
+%%%% %%% START DOCUMENT %%% %%%
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+introduction blaat
+
+
+\section{Explanation of implementation}
+The genetic algorithm was implemented with java, using the Eclipse SDK. The reason for this was merely from a practical point of view, since both authors are familiar with the possibilities of java, and object oriented programming would allow us to implement the program in a modular way, which allows for extensions to be implemented easily.
+
+If one looks at the written program, one will see that it consists of three files. One file that contains the main, where all the parameter settings for the problem are given and from which the actual genetic algorithm is called.
+
+The second file is the \textit{Ga.java} file with the genetic algorithm (Ga) class. This contains the genetic algorithm itself. Upon the initialisation of an instance of the class, the parameter settings which are given are set. Next, the algorithm can be ran by calling runGa(). This will execute the genetic algorithm, with the following steps.
+
+\begin{verbatim}
+run for 50 times
+  generate a random population of size 100
+  WHILE population has changed recently 
+      AND the max fitness is not achieved yet DO
+    select two candidates (tournamentselection with size 1 or 2)
+    perform crossover or mutation on two candidates
+    select best solution of candidates
+    if best solution is better than worst of the population
+      perform sorted insert
+  add WIN/LOSE and evaluation# to 'answer' matrix
+return 'answer' matrix
+\end{verbatim}
+
+
+
+
+\section{Results}
+including time and stuff
+and also the required plots
+
+\section{Influence of different selection method on the performance}
+As an additional research question we have decided to extend our current implementation of the algorithm with some extra selection method. Currently only tournament selection with size 2, and random selection is done. We would like to see the effects of applying tournament selection with sizes (SIZES????) and also with roulette wheel selection, and truncation selection.
+
+\subsection{Additional implementation explained}
+
+\subsection{Results and findings}
+
+
+
+\end{document}
