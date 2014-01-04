@@ -20,24 +20,95 @@ public class Main{
 		// Select parameter settings
 		
 		// We moeten allerlei combinaties van parameter values afgaan, maar heb nog voor het gemak 1 variant.
-		int solutionLength = 100;
-		int populationSize = 100;		// multiple of 10
+		int solutionLength = Solution.solLength;
+		int populationSize = 500;		// multiple of 10   range 100 - 250
 		int tournamentSize = 2;			// 1 or 2
-		int fitnessFunctionType = 1;	// 1,2,3,4
-		int linkageType = 1;			// 1=tight, 2=random
-		double probCrossover = 0;		// 0, 0.5, 1
+		int fitnessFunctionType = 3;	// 1,2,3,4
+		int linkageType = 2;			// 1=tight, 2=random
+		double probCrossover = .5;		// 0, 0.5, 1
 		int crossoverType = 1;			// 1=2point, 2=uniform
 		
 		// Perform GA
-			
+		for (int fitFunc=1;fitFunc<=2;fitFunc++){
+			for(int popsize=100;popsize<=250;popsize+=10){
+				for(int toursize=1;toursize<=2;toursize++){
+					for (double probCross=0;probCross<=1;probCross+=0.5){
+						if (probCross!=0){
+								for (int crossType=1;crossType<=2;crossType++){
+									
+								}
+						} else {
+							//...
+						}
+					}
+					
+				}
+			}
+		}
+		
+		for (int fitFunc=3;fitFunc<=4;fitFunc++){
+			for(int popsize=100;popsize<=250;popsize+=10){
+				for(int toursize=1;toursize<=2;toursize++){
+					for (int link=1;link<=2;link++){
+						for (double probCross=0;probCross<=1;probCross+=0.5){
+							if (probCross!=0){
+								for (int crossType=1;crossType<=2;crossType++){
+									if (crossType==1){
+										//do linkage stuff
+									} else {
+										//do not check linkage
+									}
+								}
+							} else {
+								//...
+							}
+						}
+					}
+				}
+			}
+		}
+	
+	
+	
 		Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
 		//	
 		// number of generations after the global optimum was found
 		ArrayList result = ga.runGa();
-			
-			// print result
 		
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		//INFORMATION IN RESULT:
+		/* Col1        Col2               Col3
+		   WIN/LOSE    #evaluations       avg fitness 
+		*/
+		// print result
+		System.out.println();
+		int wins=0;;
+		double winratio;
+		int[] win = new int[result.size()];
+		int[] evaluations = new int[result.size()];
+		int[] avgfitness = new int[result.size()];
+		for(int i=0;i<result.size();i++){
+			wins+=((int[])result.get(i))[0];
+			win[i] = ((int[])result.get(i))[0];
+			evaluations[i] = ((int[])result.get(i))[1];
+			avgfitness[i] =((int[])result.get(i))[2];
+		}
+		winratio = wins/result.size();
+		System.out.println("Results: "+wins);
+		System.out.println("Eval       avg fit");
+		for (int i=1;i<result.size();i++){
+		    System.out.print(evaluations[i]);
+		    System.out.println("     "+avgfitness[i]);
+		}
+		System.out.println("Winratio: "+winratio);
 	}
 
 }
