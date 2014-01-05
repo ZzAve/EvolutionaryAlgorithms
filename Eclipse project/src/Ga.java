@@ -372,6 +372,7 @@ public class Ga{
         private ArrayList runGaa(int trialNr, ArrayList answer){
             ArrayList winners;
             if (trialNr<50){
+            	System.out.print(trialNr+", ");
             	//System.out.println();
             	//System.out.println(">> Trial: "+trialNr);
                 // set up
@@ -421,7 +422,7 @@ public class Ga{
                      }
                      
                     // sorted insert
-                     if (bestSol.getFitness() >= ((Solution) population.get(population.size()-1)).getFitness()){
+                     if (bestSol.getFitness() > ((Solution) population.get(population.size()-1)).getFitness()){
                          //System.out.println("Replacing solution: "+((Solution) population.get(population.size()-1)).getFitness());
                          //System.out.println("Size of pop: "+population.size());
                     	 //System.out.println("BestSol: "+bestSol.bitStringString());
@@ -444,6 +445,7 @@ public class Ga{
                 return runGaa(trialNr+1, answer);
             } else {
             	result = answer;
+            	System.out.println();
                 return answer;
         }
         }

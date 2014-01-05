@@ -36,6 +36,7 @@ public class Main{
 		ArrayList result2 = new ArrayList();
 	
 		// Perform GA
+		/*
 		outerloop:
 		for (int fitFunc=1;fitFunc<=2;fitFunc++){
 			System.out.println("");
@@ -73,12 +74,12 @@ public class Main{
 					
 				}
 			}
-		}
-		/*
-		for (int fitFunc=3;fitFunc<=4;fitFunc++){
+		}*/
+		
+		for (int fitFunc=3;fitFunc<=3;fitFunc++){
 			System.out.println("");
 			System.out.println("Fitness function = " + fitFunc);
-			for(int popsize=500;popsize<=2500;popsize+=50){
+			for(int popsize=2500;popsize<=3500;popsize+=100){
 				System.out.println("Popsize = " + popsize);
 				for(int toursize=1;toursize<=2;toursize++){
 					System.out.println("Toursize = " + toursize);
@@ -117,14 +118,7 @@ public class Main{
 					}
 				}
 			}
-		}*/
-		
-		
-		
-		
-		
-		
-		
+		}
 		
 		
 		System.out.println("Beginnen met schrijven");
