@@ -21,13 +21,14 @@ public class Main{
 		
 		// We moeten allerlei combinaties van parameter values afgaan, maar heb nog voor het gemak 1 variant.
 		int solutionLength = Solution.solLength;
-		int populationSize = 500;		// multiple of 10   range 100 - 250
-		int tournamentSize = 2;			// 1 or 2
-		int fitnessFunctionType = 3;	// 1,2,3,4
-		int linkageType = 2;			// 1=tight, 2=random
-		double probCrossover = .5;		// 0, 0.5, 1
+		int populationSize = 100;		// multiple of 10   range 200 - 1000
+		int tournamentSize = 1;			// 1 or 2
+		int fitnessFunctionType = 1;	// 1,2,3,4
+		int linkageType = 1;			// 1=tight, 2=random
+		double probCrossover = 1;		// 0, 0.5, 1
 		int crossoverType = 1;			// 1=2point, 2=uniform
 		
+		Ga Ga;
 		// Perform GA
 		for (int fitFunc=1;fitFunc<=2;fitFunc++){
 			for(int popsize=100;popsize<=250;popsize+=10){
@@ -45,31 +46,44 @@ public class Main{
 				}
 			}
 		}
-		
+		/*
+		ArrayList result1 = new ArrayList();
+		ArrayList result2 = new ArrayList();
 		for (int fitFunc=3;fitFunc<=4;fitFunc++){
 			for(int popsize=100;popsize<=250;popsize+=10){
 				for(int toursize=1;toursize<=2;toursize++){
-					for (int link=1;link<=2;link++){
-						for (double probCross=0;probCross<=1;probCross+=0.5){
-							if (probCross!=0){
-								for (int crossType=1;crossType<=2;crossType++){
-									if (crossType==1){
-										//do linkage stuff
-									} else {
-										//do not check linkage
+					for (double probCross=0;probCross<=1;probCross+=0.5){
+						if (probCross!=0){
+							for (int crossType=1;crossType<=2;crossType++){
+								if (crossType==1){
+									//check linkage
+									for (int link=1;link<=2;link++){
+										Ga = new Ga(solutionLength,popsize,toursize,fitFunc,link,probCross,crossType);
+										double[] settings ={solutionLength,popsize,toursize,fitFunc,link,probCross,crossType};
+										result1.add(settings);
+										result2.add(Ga.runGa());
 									}
+								} else {
+									//do not check linkage
+									Ga = new Ga(solutionLength,popsize,toursize,fitFunc,0,probCross,crossType);
+									double[] settings ={solutionLength,popsize,toursize,fitFunc,0,probCross,crossType};
+									result1.add(settings);
+									result2.add(Ga.runGa());
+									
 								}
-							} else {
-								//...
 							}
+						} else { // probCross ==0
+							//...
+							Ga = new Ga(solutionLength,popsize,toursize,fitFunc,0,probCross,0);
+							double[] settings ={solutionLength,popsize,toursize,fitFunc,0,probCross,0};
+							result1.add(settings);
+							result2.add(Ga.runGa());
 						}
 					}
 				}
 			}
 		}
-	
-	
-	
+		*/
 		Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
 		//	
 		// number of generations after the global optimum was found

@@ -15,7 +15,7 @@
 \usepackage{alltt}
 \usepackage{xfrac}
 \usepackage{tikz}
-\setlength\parindent{0pt}
+
 
 % change headers and footers (package fancyhdr)
 \pagestyle{fancy}
@@ -28,48 +28,73 @@
 
 
 % document info
-\title{Analysis on the performance of a genetic algorithm}
+\title{Analysis on the performance of a genetic algorithm\\ \textit{INFO-EA Evolutionary Computing}}
 \author{Julius \textsc{van Dis} \\ 4038010 \\vandis.j@gmail.com
 \and Myrna \textsc{van de Burgwal} \\ 3296725 \\myrnavandeburgwal@gmail.com}
 
 %%%% %%% START DOCUMENT %%% %%%
 \begin{document}
-
 \maketitle
 \thispagestyle{empty}
+%
+\section*{}
+%Introduction blaat
+%What have we done?
+We have written a program that allows us to gain insight in the conversion behaviour of genetic algorithms. In particular, we looked at binary bitstrings, with a length of $l=100$. Based on 4 different fitness functions, our goal was to find the binary vector that maximises the fitness function.
 
-introduction blaat
+....
+....
+Details on the assignment can be find in the assignment PDF.
 
+As an additional research question, we performed some experiments to find out more about the influence of the selection procedure. Our initial program only considered tournament selection with size 1 or 2, where 1 is random selection. We extended this selection procedure with options for ... and  ... .. . The details can be found in Section~\ref{sec:research}.
 
 \section{Explanation of implementation}
-The genetic algorithm was implemented with java, using the Eclipse SDK. The reason for this was merely from a practical point of view, since both authors are familiar with the possibilities of java, and object oriented programming would allow us to implement the program in a modular way, which allows for extensions to be implemented easily.
+The genetic algorithm was implemented in java, using the Eclipse SDK. The reason for this was merely from a practical point of view, since both authors are familiar with the possibilities of java, and object oriented programming would allow us to implement the program in a modular way, which allows for extensions to be implemented easily.
 
-If one looks at the written program, one will see that it consists of three files. One file that contains the main, where all the parameter settings for the problem are given and from which the actual genetic algorithm is called.
+%General explanation
+If one looks at the written program, one will see that it consists of three files. One file, \textit{main.java} that contains the main, where all the parameter settings for the problem are given and from which the actual genetic algorithm is called. Then there is \textit{Ga.java}, which contains the algorithm itself, and third there is \textit{Solution.java}, which contains a helper class \textit{Solution}, in which the properties of a certain solution are kept, as well as where the calculations for the fitness are done. The subsequent sections discuss these three files in more detail.
 
-The second file is the \textit{Ga.java} file with the genetic algorithm (Ga) class. This contains the genetic algorithm itself. Upon the initialisation of an instance of the class, the parameter settings which are given are set. Next, the algorithm can be ran by calling runGa(). This will execute the genetic algorithm, with the following steps.
+%explanation per file
+\subsection{Main.java}
+In the main file of the program, the most essential part is the selection of the right parameter settings to run the program on. Some initial experiments, as well as some comparisons with comparable research, we were able to narrow down some of the parameter settings (see Section~\ref{sec:results}). 
+
+\textit{Main} makes a call to \textit{Ga}, with the request to run a genetic algorithm with the given parameter settings. The results, which comes in an ArrayList are then further processed and presented to the user.
+
+
+\subsection{Ga.java}
+The second file is the \textit{Ga.java} file with the genetic algorithm (Ga) class. This contains the genetic algorithm itself. Upon the initialisation of an instance of the class, the parameter settings which are given are set. Next, the algorithm can be ran by calling \textit{runGa}. This will execute the genetic algorithm, with the following steps.
 
 \begin{verbatim}
-run for 50 times
-  generate a random population of size 100
-  WHILE population has changed recently 
-      AND the max fitness is not achieved yet DO
-    select two candidates (tournamentselection with size 1 or 2)
-    perform crossover or mutation on two candidates
-    select best solution of candidates
-    if best solution is better than worst of the population
-      perform sorted insert
-  add WIN/LOSE and evaluation# to 'answer' matrix
-return 'answer' matrix
+1 run for 50 times
+2    generate a random population with solution length 100
+3    WHILE population has changed recently 
+       AND the max fitness is not achieved yet DO
+4       select two candidates (tournament selection with size 1 or 2)
+5       perform crossover or mutation on two candidates
+6       select best solution of candidates
+7       if best solution is better than worst of the population
+8         perform sorted insert
+9    add WIN/LOSE, evaluation# and average fitness to 'answer' matrix
+10 return 'answer' matrix
 \end{verbatim}
 
+A couple of remarks: Upon generation of the population, the population is sorted as well based on their fitness (descending). When tournament selection is called, this will always return 2 solutions (i.e. it will perform the tournament twice). 
 
+Crossover can be performed in multiple ways. Independent of the fitness function, uniform crossover and 2point crossover can take place. In case the fitness function is a trap function (either deceptive or non-deceptive), the 2point crossover is such that the left and right point are always a multitude of 4 apart. This means that when there is a tight linkage, only entire subfunctions can be exchanged.
 
+The mutation is performed as proposed. First, the amount of mutations is determined by simulating fair coin flipping. Then, the locations which will mutate are selected, and subsequently they are mutated.
 
-\section{Results}
+Then, after mutation or crossover, the best child is selected. If its fitness is equal or larger then the fitness of the worst solution in the population, a sorted insert is performed. Then, the iteration starts over, and continues until the WHILE condition does not hold any more (when global maximum is reached or when the populations has not changed for a long time). And finally, the whole process of finding the global optimum is repeated for a certain parameter set 50 times.
+
+\subsection{Solution.java}
+As a helper class, \textit{Solution} is the last file of the program. The properties of a solution are saved in an instance of this class. This means that the id, the bitstring itself, the fitness function, the fitness, and the linkage are set upon initialisation. It also contains methods to calculate the fitness of a solution, as well as the maximum achievable fitness for a bitstring evaluated under a certain fitness function.
+
+\section{Results} \label{sec:results}
 including time and stuff
 and also the required plots
 
 \section{Influence of different selection method on the performance}
+\label{sec:research}
 As an additional research question we have decided to extend our current implementation of the algorithm with some extra selection method. Currently only tournament selection with size 2, and random selection is done. We would like to see the effects of applying tournament selection with sizes (SIZES????) and also with roulette wheel selection, and truncation selection.
 
 \subsection{Additional implementation explained}

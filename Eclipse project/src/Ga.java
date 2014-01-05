@@ -10,7 +10,7 @@ import java.util.Random;
 public class Ga{
         
         private ArrayList population;
-        
+        private ArrayList result;
         private int solLength;
         private int popSize;
         private int tourSize;
@@ -50,6 +50,10 @@ public class Ga{
                 
                 unchanged = 0;
                 population = new ArrayList();
+        }
+        
+        public ArrayList getResult(){
+        	return result;
         }
         
         /**
@@ -102,7 +106,7 @@ public class Ga{
          * @return
          */
         private ArrayList performTournament2(int tournamentSize){
-                ArrayList winners = new ArrayList();
+        		ArrayList winners = new ArrayList();
                 Random randomNr = new Random();
 
                 switch (tournamentSize){
@@ -169,11 +173,12 @@ public class Ga{
             		cross2 = bitGenerator.nextInt(solLength/4);
             		while (cross1==cross2) cross2 = bitGenerator.nextInt(solLength/4);
             		cross1*=4; cross2*=4;
-            	}else {
+            	} else {
 	            	cross1 = bitGenerator.nextInt(solLength); //left border
 	                cross2 = bitGenerator.nextInt(solLength); //right border
 	                while(cross1==cross2) cross2 = bitGenerator.nextInt(solLength);
             	}
+            	
                 if(cross1>cross2) { // ensure left border has a lower index than the right border
                     int temp = cross1;
                     cross1 = cross2;
@@ -201,8 +206,8 @@ public class Ga{
             children.add(new Solution((int[])child2.clone(), fitnessFunction, linkage));
             
     
-            System.out.print(" Crossover: p1:"+parent1.getFitness()+" p2:"+parent2.getFitness());
-            System.out.print(" Child1:"+((Solution) children.get(0)).getFitness()+" child2:"+((Solution) children.get(1)).getFitness());
+            //System.out.print(" Crossover: p1:"+parent1.getFitness()+" p2:"+parent2.getFitness());
+            //System.out.println(" Child1:"+((Solution) children.get(0)).getFitness()+" child2:"+((Solution) children.get(1)).getFitness());
             return children;
         }
         
@@ -367,6 +372,7 @@ public class Ga{
         private ArrayList runGaa(int trialNr, ArrayList answer){
             ArrayList winners;
             if (trialNr<50){
+            	System.out.println();
             	System.out.println(">> Trial: "+trialNr);
                 // set up
                 Solution.resetIds();
@@ -377,10 +383,13 @@ public class Ga{
                 int evaluations=0;
                 
                 // run until...
-                while ((unchanged < nrOfGenerations) && (bestFitness < maxFitness)){
+                while ((unchanged < nrOfGenerations) && (bestFitness < maxFitness) && (evaluations<1000000)){
+                	if (evaluations%100000==0){
+                		System.out.print(evaluations+", ");
+                	}
                 	// select
                     winners = performTournament2(tourSize);
-                    System.out.println("Winners of tournamens: "+winners.toString());
+                    //System.out.println("Winners of tournament: "+winners.toString());
                     
                     // crossover or mutate
                     if (probCross == 0){
@@ -413,7 +422,10 @@ public class Ga{
                      
                     // sorted insert
                      if (bestSol.getFitness() >= ((Solution) population.get(population.size()-1)).getFitness()){
-                         insert(bestSol);
+                         //System.out.println("Replacing solution: "+((Solution) population.get(population.size()-1)).getFitness());
+                         //System.out.println("Size of pop: "+population.size());
+                    	 System.out.println("BestSol: "+bestSol.bitStringString());
+                    	 insert(bestSol);
                          unchanged=0;
                      } else{
                          unchanged++;
@@ -431,6 +443,7 @@ public class Ga{
                 
                 return runGaa(trialNr+1, answer);
             } else {
+            	result = answer;
                 return answer;
         }
         }
