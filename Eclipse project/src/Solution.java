@@ -143,7 +143,7 @@ public class Solution{
     
     public static void resetIds(){
             idTotal=0;
-            System.out.println("Ids are reset to 0!");
+            //System.out.println("Ids are reset to 0!");
     }
     
     public void mutateSolution(int[] indices){
