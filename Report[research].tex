@@ -96,9 +96,16 @@ and also the required plots
 \label{sec:research}
 As an additional research question we have decided to extend our current implementation of the algorithm with some extra selection method. Currently only tournament selection with size 2, and random selection is done. We would like to see the effects of combining tournament selection with truncation selection. We believe that truncation selection greatly increases the selection pressure. 
 
-The method we used to implement the combined truncation with tournament selection is as follows. Based upon the truncation value (1, 0.5 or 0.25), the selection procedure starts with truncating the population. Next, the truncated population is send to the tournament selection, as was done before, and either tournament selection with size 1 or size 2 is performed. This implementation was tested on the two counting ones functions.
+The method we used to implement the combined truncation with tournament selection is as follows. Based upon the truncation value (1, 0.5 or 0.25), the selection procedure starts with truncating the population. Next, the truncated population is send to the tournament selection, as was done before, and either tournament selection with size 1 or size 2 is performed. This implementation was tested on the counting ones functions. The lines where the truncation values are 1, is the base case (i.e. tournament selection is performed on the entire population).
 
 \subsection{Results and findings}
+The adapted program was run for the uniformly scaled counting ones function, with a population size ranging from 10 to 250. This selection was a result of the previous outcome,which showed conversions to optimality even before a population size of 200 in most cases. For all three truncation values we tested combinations of tournament size, crossover probability and crossover type. The result is shown in Figures~REFFF!!!!.
+
+The first thing that is noticeable from the figures is that, as was seen before, a lower crossover probability (or a higher mutation probability) results in a faster convergence. This can be explained by the fact that with small populations crossover lets the population converge in a very fast manner towards a (local) optimum, and does not allow for a lot of exploration. Mutation allows the population to explore the solution space, allowing solutions to be guided away from any optimum.
+
+When comparing the behaviour of the truncated runs with the non truncated runs, then the only significant difference can be spotted when the crossover probability is 1. What is interesting to see, is the effect of truncation is different when compared with the tournament size. In case the tournament size is 1 (random selection), no truncation is better for uniform crossover, whilst maximum truncation is favourable when using 2 point crossover. When looking at the tournament selection of 2, 2point crossover performs disastrous, when compared to uniform crossover. Apparently uniform crossover allows the population to explore more of the solution space, whilst 2point crossover disallows exploration with low population sizes.
+
+In general, the difference in performance for the uniformly scaled counting ones function is minimal. In case that there is mutation (Pc<1), hardly any difference in performance can be found.
 
 
 
