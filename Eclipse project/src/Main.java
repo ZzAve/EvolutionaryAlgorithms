@@ -76,14 +76,14 @@ public class Main{
 			}
 		}*/
 		
-		for (int fitFunc=3;fitFunc<=3;fitFunc++){
+		for (int fitFunc=4;fitFunc<=4;fitFunc++){
 			System.out.println("");
 			System.out.println("Fitness function = " + fitFunc);
-			for(int popsize=2500;popsize<=3500;popsize+=100){
+			for(int popsize=4000;popsize<=5500;popsize+=100){
 				System.out.println("Popsize = " + popsize);
 				for(int toursize=1;toursize<=2;toursize++){
 					System.out.println("Toursize = " + toursize);
-					for (double probCross=0;probCross<=1;probCross+=0.5){
+					for (double probCross=0;probCross<=0;probCross+=0.5){
 						System.out.println("Prob cross = " + probCross);
 						if (probCross>0){
 							for (int crossType=1;crossType<=2;crossType++){
