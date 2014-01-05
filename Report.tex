@@ -192,7 +192,64 @@ For both functions, uniform crossover gave better results and also needed less g
 We have seen that a global optimum is always found if we use mutation with a population size of more than 100. If we take a tournament size of 1, an even smaller population size is needed.
 It is also possible to find global optima with a small population size when we use crossover, only it is necessary to take a tournament size of 1.
 
+\section{Trap functions}
 
+\subsection{Deceptive Trap Function}
+Since we had soon discovered that the deceptive trap function performed very bad, we increased our population sizes. We ran our program for sizes between 500 and 2500. When it turned out that the results were not that good, we also tried sizes above 2500, but we did not find much improvement. \\
+Although mutation gave good results for the counting ones functions, it never found a global optimum when using the deceptive trap function. For Pc=0.5, the results were better, but a large population size was required. Pc=1 gave the best results. We can therefore conclude that crossover performs better than mutation when a trap function is used. This is probably the case, because 3 adjacent ones are punished, while we need 4 adjacent ones and crossover has a higher probability of keeping 4 adjacent ones than mutation. \\
+Surprinsingly, uniform crossover never gave a global optimum, but two-point crossover did. The latter works better since the fitness function takes groups of four bits and more inheritance is kept with two-point crossover. However, if random linkage was used, a global optimum was never found either. This is because the inheritance is lost when the bits are randomly linked. For tight linkage a tournament size of 1 performed better than a size of 2. Again, this could be the case since a size of 2 leads to early convergence. 
+Below the results are shown in graphs (the x-axis represents the population sizes and the y-axis the ratio of global optima being found).
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\textwidth]{Fit3Pc0.png}
+    \caption{The results for a crossover probality of 0. Comparing tournament sizes (s) of 1 and 2}
+    %\label{}
+\end{figure}
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\textwidth]{Fit3Pc05.png}
+    \caption{Results for Pc=0.5. Comparing tournament sizes (s) and the two different crossover types}
+    %\label{}
+\end{figure}
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\textwidth]{Fit3Pc1.png}
+    \caption{Results for Pc=1. Comparing tournament sizes (s) and the two different crossover types}
+    %\label{}
+\end{figure}
+
+\subsection{Non-deceptive Trap Function}
+Naturally, the non-deceptive trap function performed much better than the deceptive one. We used population sizes between 500 and 2000. Again, crossover performed better than mutation. Since Pc=0 gave very bad results, we ran the program again with population sizes until 6000. Still, hardly any global optima were found. A tournament size of 1 performed better than a size of 2. \\
+The performance of Pc=0.5 was quite good. For two-point crossover a global optimum was always found.  Again, uniform crossover gave worse results, which has to do with the inheritance of the subgroups of the bitstrings. Very interesting was the fact that random linkage performed better than tight linkage, which was a very surprinsing observation. For Pc=1 this was the other way around. For both Pc=0.5 and Pc=1 a tournament size of 1 performed better than a size of 2.
+The results can be seen below in graphs (x-axis = population sizes, y-axis = ratio).
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\textwidth]{Fit4Pc0.png}
+    \caption{The results for a crossover probality of 0. Comparing tournament sizes (s) of 1 and 2}
+    %\label{}
+\end{figure}
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\textwidth]{Fit4Pc05.png}
+    \caption{Results for Pc=0.5. Comparing tournament sizes (s) and the two different crossover types}
+    %\label{}
+\end{figure}
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\textwidth]{Fit4Pc1.png}
+    \caption{Results for Pc=1. Comparing tournament sizes (s) and the two different crossover types}
+    %\label{}
+\end{figure}
+
+\subsection{Conclusion of deceptive functions}
+
+We observed that random linkage performed very slow. Our algorithm to link the bits randomly was quite efficient, but still it took much longer to compute these results than for tight linkage. \\
+As was expected, the non-deceptive function gave better results than the deceptive function. Again, a tournament size of 1 turned out to be better than a size of 2, because of too early convergence of the latter. Unlike the counting ones functions, the deceptive functions performed better with crossover than mutation and better with two-point crossover than uniform crossover. This has to do with the inheritance of the bit groups during the fitness evaluations.
 \section{Results} \label{sec:results}
 including time and stuff
 and also the required plots
