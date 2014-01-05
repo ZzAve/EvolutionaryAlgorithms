@@ -88,6 +88,65 @@ Then, after mutation or crossover, the best child is selected. If its fitness is
 \subsection{Solution.java}
 As a helper class, \textit{Solution} is the last file of the program. The properties of a solution are saved in an instance of this class. This means that the id, the bitstring itself, the fitness function, the fitness, and the linkage are set upon initialisation. It also contains methods to calculate the fitness of a solution, as well as the maximum achievable fitness for a bitstring evaluated under a certain fitness function.
 
+
+\section{Counting ones}
+
+\subsection{Uniformly Scaled Counting Ones Function}
+
+For the uniformly scaled counting ones function, we have run our program for population sizes between 100 and 1000.
+It turned out that a global optimum was easily found if the algorithm included mutation (i.e. if Pc equals 0 or 0.5).
+The population size needed to be large until global optimum were found when Pc=1.
+This is probably the case, because using crossover on a small population size can lead to convergence to a local optimum.
+Mutation continuously caused changes in the population, whereas crossover could result into a specific bit being zero for the entire population.
+For Pc=0 and Pc=0.5 a population size of respectively 150 and 200 would have been enough, wherease Pc=1 would require much more solutions. \\
+
+Another interesting observation is that a tournament size of 1 led to more found global optima than a tournament size of 2.
+We expected it to be the other way around, since a size of 2 would remove all bad solutions.
+Probably the selection pressure was too strong and an early convergence led to local optima.\\
+
+A final aspect that we have compared is the types of crossover. For all kinds of parameter settings, uniform crossover gave better results than two-point crossover.
+For Pc=0.5 this difference was small, but for Pc=1 it was quite significant. This is probably the case, since in small population sizes entire segments are being switched.
+
+We also discovered some interesting results of the duration before a global optimum was found. 
+We have computed the average number of generations between all 50 runs for the parameter settings.
+It turned out that this number was much higher for Pc=0 than for Pc=0.5 and Pc=1 (with Pc=1 being a little faster than Pc=0.5).
+We assume that crossover leads to a quick convergence, with either a global optimum or a local optimum as a result.
+A tournament size of 1 gave almost twice as many generations as a size of 2.
+This is also probably the case since a size of 2 made the fitnesses convergence very quickly.
+The differences of both comparisons were larger when the population size was larger.
+Uniform crossover had less generations than two-point crossover.
+
+
+\subsection{Linearly Scaled Counting Ones Function}
+
+Just like in the first fitness function, we have run our program for the linearly scaled counting ones function with population sizes between 100 and 1000.
+The results were similar to the results of the former fitness function.
+Again, mutation led to much better results than crossover.
+When Pc was equal to 0, almost always a global optimum was found. Pc=0.5 gave slightly worse results.
+But with Pc=1, a large population size was needed to find global optima.\\
+
+More global optima were found when the tournament size was equal to 1 (instead of 2), presumably due to a too high selection pressure of a size of 2. Also, uniform crossover could find a global optimum more often than two-point crossover.
+This difference is even larger than in the first fitness function.
+
+The differences in the number of generations were similar to those of the first fitness function.
+Crossover was quicker than mutation, a tournament size of 2 was quicker than a size of 1, and uniform crossover was quicker than two-point crossover.
+
+\subsection{Conclusion of CO and SCO}
+
+Comparing both fitness functions, we found that the results of the uniformly scaled fitness function were slightly better than those of the linearly scaled function.
+This difference is more significant when Pc=1.
+This could be the case, because the function is linearly scaled and the first bits have very low influence on the fitness value.
+In all cases, the uniformly scaled function was faster than the linearly scaled function.
+We assumed that this has also to do with the fact that the first bits are hardly taken into account when the fitness is computed and it takes longer before a global optimum is found. \\
+
+Overall we observed that mutation resulted into more global optima than crossover.
+In general tournament selection will improve the fitnesses of a population, but the population size should be large enough to prevent local optima.
+Since global optima can be found with small population sizes, tournament selection is not very helpful in these cases. \\
+
+We have seen that a global optimum is always found if we use mutation with a population size of more than 100. If we take a tournament size of 1, an even smaller population size is needed.
+It is also possible to find global optima with a small population size when we use crossover, only it is necessary to take a tournament size of 1.
+
+
 \section{Results} \label{sec:results}
 including time and stuff
 and also the required plots
