@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /* For a parameter setting
@@ -21,9 +24,9 @@ public class Main{
 		
 		// We moeten allerlei combinaties van parameter values afgaan, maar heb nog voor het gemak 1 variant.
 		int solutionLength = Solution.solLength;
-		int populationSize = 100;		// multiple of 10   range 200 - 1000
+		int populationSize = 1000;		// multiple of 10   range 200 - 1000
 		int tournamentSize = 1;			// 1 or 2
-		int fitnessFunctionType = 1;	// 1,2,3,4
+		int fitnessFunctionType = 4;	// 1,2,3,4
 		int linkageType = 1;			// 1=tight, 2=random
 		double probCrossover = 1;		// 0, 0.5, 1
 		int crossoverType = 1;			// 1=2point, 2=uniform
@@ -46,11 +49,11 @@ public class Main{
 				}
 			}
 		}
-		/*
+		
 		ArrayList result1 = new ArrayList();
 		ArrayList result2 = new ArrayList();
 		for (int fitFunc=3;fitFunc<=4;fitFunc++){
-			for(int popsize=100;popsize<=250;popsize+=10){
+			for(int popsize=200;popsize<=250;popsize+=10){
 				for(int toursize=1;toursize<=2;toursize++){
 					for (double probCross=0;probCross<=1;probCross+=0.5){
 						if (probCross!=0){
@@ -83,20 +86,41 @@ public class Main{
 				}
 			}
 		}
-		*/
+		
+		//write to file
+	    try {
+	        BufferedWriter out = new BufferedWriter(new FileWriter("results.txt"),32678);
+	        String settingsString = "SolutionLength,popsize,toursize,fitfunc,linkage,probCross,crossType,";
+	        String settings;
+	        for (int i=0; i<result1.size();i++){
+	        	settings="";
+	        	for (int j=0;j<((double[]) result1.get(i)).length;j++){
+	        		settings+=((double[])result1.get(i))[j]+",";
+	        	}	        	
+	        	out.write(settingsString);
+	        	out.newLine();
+	        	out.write(settings);
+	        	out.newLine();
+	        	
+	        	ArrayList paramList = ((ArrayList)result2.get(i));
+	        	for (int k=0;k<paramList.size();k++){
+	        		for (int l=0;l<((int[]) paramList.get(k)).length;l++){
+	        			out.write(((int[])paramList.get(k))[l]+",");
+	        		}
+	        		out.newLine();
+	        	}
+	        }
+	        out.close();
+	    } catch (IOException e) {
+	    	System.err.println("FileNotFoundException: " + e.getMessage());
+	    }
+	  
+		
+		
 		Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
 		//	
-		// number of generations after the global optimum was found
+		//number of generations after the global optimum was found
 		ArrayList result = ga.runGa();
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		//INFORMATION IN RESULT:
 		/* Col1        Col2               Col3
