@@ -76,27 +76,27 @@ public class Ga{
                 dummySolution = null;
             }
             
-            System.out.println();
-            System.out.print("Fitnesses before: ");
+            //System.out.println();
+            //System.out.print("Fitnesses before: ");
             for(int solNr=0;solNr<popSize;solNr++) {
                     Solution sol = (Solution) population.get(solNr);
-                    System.out.print(sol.getFitness()+", ");
+                    //System.out.print(sol.getFitness()+", ");
             }
             
             //System.out.println();
             //System.out.print("Sorting: ");
             population = quickSort(population);
-            System.out.println();
-            System.out.print("Fitnesses after: ");
+            //System.out.println();
+            //System.out.print("Fitnesses after: ");
             for(int solNr=0;solNr<popSize;solNr++) {
                     Solution sol = (Solution) population.get(solNr);
-                    System.out.print(sol.getFitness()+", ");
+                    //System.out.print(sol.getFitness()+", ");
             }
             //System.out.println();
             Solution best = (Solution) population.get(0);
             bestFitness = (int) best.getFitness();
             
-            System.out.println();
+            //System.out.println();
         }
         
         
@@ -359,7 +359,7 @@ public class Ga{
          */
         public ArrayList runGa(){
     		ArrayList result = new ArrayList();
-    		System.out.println("Start!");
+    		//System.out.println("Start!");
             return runGaa(0,result);
         }
         
@@ -372,8 +372,8 @@ public class Ga{
         private ArrayList runGaa(int trialNr, ArrayList answer){
             ArrayList winners;
             if (trialNr<50){
-            	System.out.println();
-            	System.out.println(">> Trial: "+trialNr);
+            	//System.out.println();
+            	//System.out.println(">> Trial: "+trialNr);
                 // set up
                 Solution.resetIds();
                 population =null;
@@ -384,9 +384,9 @@ public class Ga{
                 
                 // run until...
                 while ((unchanged < nrOfGenerations) && (bestFitness < maxFitness) && (evaluations<1000000)){
-                	if (evaluations%100000==0){
+                	/*if (evaluations%100000==0){
                 		System.out.print(evaluations+", ");
-                	}
+                	}*/
                 	// select
                     winners = performTournament2(tourSize);
                     //System.out.println("Winners of tournament: "+winners.toString());
@@ -424,7 +424,7 @@ public class Ga{
                      if (bestSol.getFitness() >= ((Solution) population.get(population.size()-1)).getFitness()){
                          //System.out.println("Replacing solution: "+((Solution) population.get(population.size()-1)).getFitness());
                          //System.out.println("Size of pop: "+population.size());
-                    	 System.out.println("BestSol: "+bestSol.bitStringString());
+                    	 //System.out.println("BestSol: "+bestSol.bitStringString());
                     	 insert(bestSol);
                          unchanged=0;
                      } else{
@@ -438,7 +438,7 @@ public class Ga{
                 } // end while loop
                 
                 //add info to answer arraylist
-                int[] results  = {bestFitness==maxFitness?1:0,evaluations,averageFitness(population)};
+                int[] results  = {bestFitness==maxFitness?1:0,evaluations,bestFitness};
                 answer.add(results);
                 
                 return runGaa(trialNr+1, answer);
