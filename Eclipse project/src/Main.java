@@ -24,71 +24,111 @@ public class Main{
 		
 		// We moeten allerlei combinaties van parameter values afgaan, maar heb nog voor het gemak 1 variant.
 		int solutionLength = Solution.solLength;
-		int populationSize = 1000;		// multiple of 10   range 200 - 1000
+		int populationSize = 100;		// multiple of 10   range 200 - 1000
 		int tournamentSize = 1;			// 1 or 2
-		int fitnessFunctionType = 4;	// 1,2,3,4
+		int fitnessFunctionType = 1;	// 1,2,3,4
 		int linkageType = 1;			// 1=tight, 2=random
 		double probCrossover = 1;		// 0, 0.5, 1
 		int crossoverType = 1;			// 1=2point, 2=uniform
 		
-		Ga Ga;
+		Ga ga;
+		ArrayList result1 = new ArrayList();
+		ArrayList result2 = new ArrayList();
+	
 		// Perform GA
+		outerloop:
 		for (int fitFunc=1;fitFunc<=2;fitFunc++){
-			for(int popsize=100;popsize<=250;popsize+=10){
+			System.out.println("");
+			System.out.println("Fitness function = " + fitFunc);
+			for(int popsize=100;popsize<=500;popsize+=
+					10){
+				System.out.println("Popsize = " + popsize);
 				for(int toursize=1;toursize<=2;toursize++){
+					System.out.println("Toursize = " + toursize);
 					for (double probCross=0;probCross<=1;probCross+=0.5){
-						if (probCross!=0){
+						System.out.println("Prob cross = " + probCross);
+						if (probCross>0){
 								for (int crossType=1;crossType<=2;crossType++){
+									if(crossType==1) {System.out.println("2-point");}
+									else {System.out.println("uniform");}
+									ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
+									double[] settings ={solutionLength,popsize,toursize,fitFunc,1,probCross,crossType};
+									result1.add(settings);
 									
+									// number of generations after the global optimum was found
+									result2.add(ga.runGa());
+									break outerloop;
 								}
 						} else {
-							//...
+							ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
+							double[] settings ={solutionLength,popsize,toursize,fitFunc,0,probCross,0};
+							result1.add(settings);
+							
+							// number of generations after the global optimum was found
+							result2.add(ga.runGa());
+							break outerloop;
+							
 						}
 					}
 					
 				}
 			}
 		}
-		
-		ArrayList result1 = new ArrayList();
-		ArrayList result2 = new ArrayList();
+		/*
 		for (int fitFunc=3;fitFunc<=4;fitFunc++){
-			for(int popsize=200;popsize<=250;popsize+=10){
+			System.out.println("");
+			System.out.println("Fitness function = " + fitFunc);
+			for(int popsize=500;popsize<=2500;popsize+=50){
+				System.out.println("Popsize = " + popsize);
 				for(int toursize=1;toursize<=2;toursize++){
+					System.out.println("Toursize = " + toursize);
 					for (double probCross=0;probCross<=1;probCross+=0.5){
-						if (probCross!=0){
+						System.out.println("Prob cross = " + probCross);
+						if (probCross>0){
 							for (int crossType=1;crossType<=2;crossType++){
 								if (crossType==1){
+									System.out.println("2-point");
 									//check linkage
 									for (int link=1;link<=2;link++){
-										Ga = new Ga(solutionLength,popsize,toursize,fitFunc,link,probCross,crossType);
+										if(link==1) {System.out.println("tight");}
+										else {System.out.println("random");}
+										ga = new Ga(solutionLength,popsize,toursize,fitFunc,link,probCross,crossType);
 										double[] settings ={solutionLength,popsize,toursize,fitFunc,link,probCross,crossType};
 										result1.add(settings);
-										result2.add(Ga.runGa());
+										result2.add(ga.runGa());
 									}
 								} else {
+									System.out.println("uniform");
 									//do not check linkage
-									Ga = new Ga(solutionLength,popsize,toursize,fitFunc,0,probCross,crossType);
+									ga = new Ga(solutionLength,popsize,toursize,fitFunc,0,probCross,crossType);
 									double[] settings ={solutionLength,popsize,toursize,fitFunc,0,probCross,crossType};
 									result1.add(settings);
-									result2.add(Ga.runGa());
+									result2.add(ga.runGa());
 									
 								}
 							}
 						} else { // probCross ==0
 							//...
-							Ga = new Ga(solutionLength,popsize,toursize,fitFunc,0,probCross,0);
+							ga = new Ga(solutionLength,popsize,toursize,fitFunc,0,probCross,0);
 							double[] settings ={solutionLength,popsize,toursize,fitFunc,0,probCross,0};
 							result1.add(settings);
-							result2.add(Ga.runGa());
+							result2.add(ga.runGa());
 						}
 					}
 				}
 			}
-		}
+		}*/
 		
-		//write to file
-	    try {
+		
+		
+		
+		
+		
+		
+		
+		
+		System.out.println("Beginnen met schrijven");
+		try {
 	        BufferedWriter out = new BufferedWriter(new FileWriter("results.txt"),32678);
 	        String settingsString = "SolutionLength,popsize,toursize,fitfunc,linkage,probCross,crossType,";
 	        String settings;
@@ -114,39 +154,6 @@ public class Main{
 	    } catch (IOException e) {
 	    	System.err.println("FileNotFoundException: " + e.getMessage());
 	    }
-	  
-		
-		
-		Ga ga = new Ga(solutionLength, populationSize, tournamentSize, fitnessFunctionType, linkageType, probCrossover, crossoverType);
-		//	
-		//number of generations after the global optimum was found
-		ArrayList result = ga.runGa();
-		
-		//INFORMATION IN RESULT:
-		/* Col1        Col2               Col3
-		   WIN/LOSE    #evaluations       avg fitness 
-		*/
-		// print result
-		System.out.println();
-		int wins=0;;
-		double winratio;
-		int[] win = new int[result.size()];
-		int[] evaluations = new int[result.size()];
-		int[] avgfitness = new int[result.size()];
-		for(int i=0;i<result.size();i++){
-			wins+=((int[])result.get(i))[0];
-			win[i] = ((int[])result.get(i))[0];
-			evaluations[i] = ((int[])result.get(i))[1];
-			avgfitness[i] =((int[])result.get(i))[2];
-		}
-		winratio = wins/result.size();
-		System.out.println("Results: "+wins);
-		System.out.println("Eval       avg fit");
-		for (int i=1;i<result.size();i++){
-		    System.out.print(evaluations[i]);
-		    System.out.println("     "+avgfitness[i]);
-		}
-		System.out.println("Winratio: "+winratio);
 	}
 
 }
