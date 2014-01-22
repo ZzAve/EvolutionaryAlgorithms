@@ -214,7 +214,7 @@ public class GraphBipartioning {
 		
 		int distance = 0;
 		
-		for(int i=0; i<500; i++) {
+		for(int i=0; i<sol1.length; i++) {
 			if(sol1[i]!=sol2[i]) distance++; 
 		}
 		
@@ -226,8 +226,7 @@ public class GraphBipartioning {
 		boolean[] invert = new boolean[sol.length];
 		
 		for(int i=0; i<sol.length; i++) {
-			if(sol[i]) invert[i] = false;
-			else {invert[i] = true;}
+			invert[i] = !sol[i];
 		}
 		
 		return invert;
