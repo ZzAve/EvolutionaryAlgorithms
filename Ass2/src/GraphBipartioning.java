@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class GraphBipartioning {
@@ -117,25 +118,13 @@ public class GraphBipartioning {
 			}
 		}
 		
+		solutions = quickSort(solutions);
 		// recombine and mutate
 		for(int j=0; j<1000; j++) {
 			int rand1 = random.nextInt (popsize);
 			int rand2 = random.nextInt (popsize);
 			
-			// used for selection pressure
 			
-			/*
-			int rand1 = random.nextInt (popsize);
-			int rand2 = random.nextInt (popsize);
-			int rand3 = random.nextInt (popsize);
-			int rand4 = random.nextInt (popsize);
-			
-			int random1;
-			int random2;
-			
-			if(solutions[rand1].cutsize > solutions[rand2].cutsize) random1 = rand1; else {random1 = rand2;};
-			if(solutions[rand3].cutsize > solutions[rand4].cutsize) random2 = rand3; else {random2 = rand4;};
-			*/
 			
 			Solution temp = new Solution( recombine(solutions[rand1].getSol(), 
 					 								solutions[rand2].getSol() ) );
@@ -294,14 +283,65 @@ public class GraphBipartioning {
 	
 	}
 	
-	/**
-	 * cutsize calculates the number of cuts that are present in the in the current solution
-	 * So basically the fitness of the solution
-	 * 
-	 * @param sol - the solution to be checked, this is a boolean array of size 500.
-	 * @return  it returns the total amount of cuts that is needed in the graph in order to obtain
-	 * the current solution.
-	 */
 	
-
+	public static Solution[] quickSort(Solution[] pop) {
+		
+		ArrayList<Solution> pop2 = new ArrayList<Solution>();
+		
+		for(int i=0; i<pop.length; i++) {
+			pop2.add(pop[i]);
+		}
+		
+		pop2 = quickSort(pop2);
+		
+		for(int i=0; i<pop.length; i++) {
+			pop[i] = pop2.get(i);
+		}
+		
+		return pop;
+	}
+	
+	public static ArrayList<Solution> quickSort(ArrayList<Solution> pop){
+        int length = pop.size();
+        if(length<2){
+                return pop;
+        }
+        else{
+            int pivot;
+            int ind = length/2;
+            
+            ArrayList<Solution> L = new ArrayList<Solution>();
+            ArrayList<Solution> R = new ArrayList<Solution>();
+            ArrayList<Solution> sorted = new ArrayList<Solution>();
+            Solution solution = (Solution) pop.get(ind);
+            pivot = solution.getCutsize();
+            
+            for(int i=0;i<length;i++){
+                if(i!=ind){
+                    Solution sol = (Solution) pop.get(i);
+                    int fitness = sol.getCutsize();
+                    
+                    if(fitness > pivot){
+                        L.add(sol);
+                    } else if (fitness < pivot){
+                        R.add(sol);
+                            
+                    } else { // fitness == pivot
+                        L.add(sol);
+                    }
+                }
+	        } // end for loop
+            
+	         L = quickSort(L);
+	         R = quickSort(R);
+	     
+	                
+	         //----
+	         sorted.addAll(L);
+	         sorted.add(solution);
+	         sorted.addAll(R);
+	         
+	         return sorted;
+         }
+	}
 }

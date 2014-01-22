@@ -202,6 +202,14 @@ public class Solution {
 		}
 	}
 	
+	/**
+	 * cutsize calculates the number of cuts that are present in the in the current solution
+	 * So basically the fitness of the solution
+	 * 
+	 * @param sol - the solution to be checked, this is a boolean array of size 500.
+	 * @return  it returns the total amount of cuts that is needed in the graph in order to obtain
+	 * the current solution.
+	 */
 	public static int cutsize(boolean[] sol) {
 		// get list of partitions
 		int[] fst = new int[sol.length/2]; //list of nodes in 0
