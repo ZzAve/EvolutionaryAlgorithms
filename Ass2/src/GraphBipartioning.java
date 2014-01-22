@@ -36,9 +36,9 @@ public class GraphBipartioning {
 		double meanGLS = 0;
 	
 		for(int i=0; i<numRuns; i++) {
-			localsMLS[i] = multiLS();
-			localsILS[i] = iteratedLS();
-			localsGLS[i] = geneticLS(25); // or 50
+			localsMLS[i] = multiLS(1000);
+			localsILS[i] = iteratedLS(5); // include perturbation size (2,3,4,5,... ?)
+			localsGLS[i] = geneticLS(50); // or 100
 		}
 		
 		medianMLS = stat.median(numRuns, localsMLS);
@@ -63,10 +63,10 @@ public class GraphBipartioning {
 	 * The Multi-Start Local Search algorithm
 	 * @return
 	 */
-	public static int multiLS() {
+	public static int multiLS(int nrOfStarts) {
 		int best = 1000;
 		Solution solution;
-		for (int search=0;search<best;search++){
+		for (int search=0;search<nrOfStarts;search++){
 			// generate solutions
 			solution = new Solution();
 			int cutsize = cutsize(solution.getSol());
@@ -78,7 +78,7 @@ public class GraphBipartioning {
 	}
 
 	
-	public static int iteratedLS() {
+	public static int iteratedLS(int perturb) {
 				
 		Solution solution = new Solution();
 		boolean[] sol = solution.getSol();
@@ -89,9 +89,9 @@ public class GraphBipartioning {
 			if(cutsize==0) break;
 			sol = swap(sol, cutsize);
 	
-			// if no improvement, apply perturbation (5 swaps)
+			// if no improvement, apply perturbation ('perturb' swaps)
 			if(cutsize(sol) >= cutsize) {
-				for(int j=0; j<5; j++) {
+				for(int j=0; j<perturb; j++) {
 					sol = perturbation(sol);
 				}
 			}
@@ -174,18 +174,21 @@ public class GraphBipartioning {
 	
 		public static boolean[] localSearch(boolean[] sol, int cut) {
 			
-			int cutsize = cut;
-			boolean[] solution = sol;
-		
+			int oldCut = cut, newCut;
 			// swap bits and stop local search when no improvement found
-			for(int i=0; i<1000; i++) {
-				if(cutsize==0) break;
-				solution = swap(solution, cutsize);
-				if(cutsize(solution) >= cutsize) break;
-				cutsize = cutsize(solution);
+			boolean change = true;
+			newCut = oldCut;
+			while(change){
+				change =false;
+				oldCut = newCut;
+				
+				sol = swap(sol, oldCut);
+				newCut = cutsize(sol);
+				
+				change = (newCut > oldCut);
 			}
 		
-			return solution;
+			return sol;
 		}
 		
 	
