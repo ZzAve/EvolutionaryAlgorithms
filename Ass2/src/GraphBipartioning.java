@@ -1,6 +1,4 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 
 public class GraphBipartioning {
@@ -67,12 +65,12 @@ public class GraphBipartioning {
 		int best = 1000;
 		Solution solution;
 		for (int search=0;search<nrOfStarts;search++){
-			// generate solutions
+			// generate solution
 			solution = new Solution();
-			int cutsize = cutsize(solution.getSol());
-			solution.setSol(localSearch(solution.getSol(), cutsize));
-			cutsize = cutsize(solution.getSol());
-			if(cutsize < best) best = cutsize;
+			
+			//apply local search
+			solution = localSearch(solution);
+			if(solution.getCutsize() < best) best = solution.getCutsize();
 		}		
 		return best;
 	}
@@ -81,26 +79,22 @@ public class GraphBipartioning {
 	public static int iteratedLS(int perturb) {
 				
 		Solution solution = new Solution();
-		boolean[] sol = solution.getSol();
-		int cutsize = cutsize(sol);
-		int best = cutsize;
+		Solution oldSolution = new Solution();
+		oldSolution.setCutsize(1000);
 
-		for(int i=0; i<1000; i++) {
-			if(cutsize==0) break;
-			sol = swap(sol, cutsize);
-	
-			// if no improvement, apply perturbation ('perturb' swaps)
-			if(cutsize(sol) >= cutsize) {
-				for(int j=0; j<perturb; j++) {
-					sol = perturbation(sol);
-				}
-			}
-			cutsize = cutsize(sol);
+		solution = localSearch(solution);
+		while (solution.getCutsize() < oldSolution.getCutsize()){
+			oldSolution = solution;
 			
-			if(cutsize < best) best = cutsize;
+			// Create new solution, which is a perturb solution of the old optimum
+			solution = new Solution(oldSolution.getSol(),oldSolution.getCutsize());
+			solution.perturbation(perturb);
+			
+			//Apply local search on new solution
+			solution = localSearch(solution);
 		}
 		
-		return best;
+		return solution.getCutsize();
 	}
 	
 	public static int geneticLS(int popsize) {
@@ -113,11 +107,8 @@ public class GraphBipartioning {
 		
 		// generate population and apply local search
 		for(int i=0; i < popsize; i++) {
-			solutions[i] = new Solution();
-			solutions[i].setCutsize(cutsize(solutions[i].getSol()));
-			
-			solutions[i].setSol(localSearch(solutions[i].getSol(), solutions[i].getCutsize()));
-			solutions[i].setCutsize(cutsize(solutions[i].getSol()));
+			solutions[i] = new Solution();			
+			solutions[i] = localSearch(solutions[i]);
 			
 			// keep track of worst solution
 			if(solutions[i].getCutsize() > worst[0]) {
@@ -146,13 +137,13 @@ public class GraphBipartioning {
 			if(solutions[rand3].cutsize > solutions[rand4].cutsize) random2 = rand3; else {random2 = rand4;};
 			*/
 			
-			boolean[] temp = recombine(solutions[rand1].getSol(), solutions[rand2].getSol());
-			temp = localSearch(temp, cutsize(temp));
+			Solution temp = new Solution( recombine(solutions[rand1].getSol(), 
+					 								solutions[rand2].getSol() ) );
+			temp = localSearch(temp);
 			
 			// compare to worst and if better, replace
-			if(cutsize(temp) < worst[0]) {
-				solutions[worst[1]].setSol(temp);
-				solutions[worst[1]].setCutsize(cutsize(temp));
+			if(temp.getCutsize() < worst[0]) {
+				solutions[worst[1]]= temp;
 			}
 			
 			for(int i=0; i < popsize; i++) {
@@ -172,23 +163,11 @@ public class GraphBipartioning {
 		return best;
 	}
 	
-		public static boolean[] localSearch(boolean[] sol, int cut) {
-			
-			int oldCut = cut, newCut;
+		public static Solution localSearch(Solution solution) {
 			// swap bits and stop local search when no improvement found
-			boolean change = true;
-			newCut = oldCut;
-			while(change){
-				change =false;
-				oldCut = newCut;
-				
-				sol = swap(sol, oldCut);
-				newCut = cutsize(sol);
-				
-				change = (newCut > oldCut);
-			}
+			while(solution.swap()){/*keep swapping until no improvement is found anymore */}
 		
-			return sol;
+			return solution;
 		}
 		
 	
@@ -266,73 +245,7 @@ public class GraphBipartioning {
         return sol;
 	}
 
-	/**
-	 * Swap computes the best possible swap that can be done. It returns the best possible swap
-	 * @param sol
-	 * @param cutsize
-	 * @return
-	 */
-	public static boolean[] swap(boolean[] sol, int cutsize) {
-		
-		// keeps track of best zero and one that can be swapped
-		int[] zero = new int[2];
-		int[] one= new int[2];
-		zero[0] = 500;
-		one[0] = 500;
-		zero[1] = -10;
-		one[1] = -10;
-		
-		
-		for(int i=0; i<500; i++) {
-			
-			
-			
-			// computes gains of nodes being swapped
-			if(!sol[i]) {
-			
-				int in = 0;
-				int out = 0;
-				Iterator<Integer> itr = nodes[i].getNeighbours().iterator();
-				while (itr.hasNext()) {
-					int j = itr.next() - 1;
-					if(!sol[i]==sol[j]) out++; else {in++;}
-				}
-				
-				int gain = out - in;
-				
-				if(gain > zero[1]) {
-					zero[0] = i;
-					zero[1] = gain;
-				}
-			}
-
-			if(sol[i]) {
-				int in = 0;
-				int out = 0;
-				Iterator<Integer> itr = nodes[i].getNeighbours().iterator();
-				while (itr.hasNext()) {
-					int j = itr.next() - 1;
-					if(!sol[i]==sol[j]) out++; else {in++;}
-				}
-				
-				int gain = out - in;
-				
-				if(gain > one[1]) {
-					one[0] = i;
-					one[1] = gain;
-				}
-			}
-			
-		}
-
-		// if a bitswap is indeed better: swap!
-		if(!((zero[0]==500)||(one[0]==500))) {	
-			sol[zero[0]] = true;
-			sol[one[0]] = false;
-		}
-		
-		return sol;
-	}
+	
 
 	
 	public static boolean[] recombine(boolean[] b1, boolean[] b2) {
@@ -357,7 +270,7 @@ public class GraphBipartioning {
 			}
 		}
 
-		// randomly assigns left nodes to both partitionings
+		// randomly assigns left nodes to both partitions
 		for(int i=0; i<500; i++) {
 			if(bits[i]==0) b0[i] = false;
 			else {
@@ -389,24 +302,6 @@ public class GraphBipartioning {
 	 * @return  it returns the total amount of cuts that is needed in the graph in order to obtain
 	 * the current solution.
 	 */
-	public static int cutsize(boolean[] sol) {
-		
-		int cutsize = 0;
-		
-		for(int i=0; i < 500; i++) {
-			
-			// create array of nodes in one of the partitions 
-			
-			// compute number of edges that are cut
-			Iterator<Integer> itr = nodes[i].getNeighbours().iterator();
-			while (itr.hasNext()) {
-				int j = itr.next() - 1;
-				if(!sol[i]==sol[j]) cutsize++;
-			}
-		}
-		
-		cutsize /= 2;
-		return cutsize;
-	}
+	
 
 }

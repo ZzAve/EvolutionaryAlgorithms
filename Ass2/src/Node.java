@@ -4,6 +4,7 @@ public class Node {
 
 	private int id;
 	private static int totalId=0;
+	private static ArrayList<Node> allNodes = new ArrayList<Node>(501);
 	private int amountEdges;
 	private ArrayList<Integer> neighbours;
 	private float coordX,coordY;
@@ -50,7 +51,10 @@ public class Node {
 			neighbours.add( Integer.parseInt( props.get(3+i) ) );
 		}
 		
+		
+		allNodes.add(id,this);
 		totalId++;
+		
 	}
 	
 	public int getId(){
@@ -64,8 +68,14 @@ public class Node {
 	public float[] getCoordinates(){
 		return new float[]{coordX,coordY};
 	}
+	
 	public int getNeighbourSize(){
 		return amountEdges;
 	}
+	
+	public static ArrayList<Integer> getNeighbours(int idee){
+		return allNodes.get(idee).getNeighbours();
+	}
+	
 }
 
