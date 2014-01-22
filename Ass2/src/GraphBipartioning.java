@@ -285,6 +285,8 @@ public class GraphBipartioning {
 		
 		for(int i=0; i<500; i++) {
 			
+			
+			
 			// computes gains of nodes being swapped
 			if(!sol[i]) {
 			
@@ -338,7 +340,7 @@ public class GraphBipartioning {
 		boolean[] b0 = new boolean[500];
 		
 		if(hammingDistance(b1, b2) > 250) invert(b1) ;
-		boolean b = true;
+		boolean b = random.nextBoolean();
 		int count0 = 0;
 		int count1 = 0;
 		
@@ -363,8 +365,9 @@ public class GraphBipartioning {
 				else {
 					if((count0<250)&&(count1<250)) {
 						b0[i] = b;
-						if(b) {b = false; count1++;}
-						else {b = true; count0++;}
+						if(b) {count1++;}
+						else {count0++;}
+						b = random.nextBoolean();
 					}
 					else {
 						if(count0==250) b0[i] = true;
@@ -391,6 +394,8 @@ public class GraphBipartioning {
 		int cutsize = 0;
 		
 		for(int i=0; i < 500; i++) {
+			
+			// create array of nodes in one of the partitions 
 			
 			// compute number of edges that are cut
 			Iterator<Integer> itr = nodes[i].getNeighbours().iterator();
