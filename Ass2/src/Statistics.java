@@ -1,13 +1,13 @@
+import java.util.Arrays;
+
 
 public class Statistics {
 
-	Statistics() {
+	public static double median(int numRuns, int[] optima) {
+		// first sort the stuff
+		Arrays.sort(optima);
 		
-	}
-
-	public double median(int numRuns, int[] optima) {
-		
-		double median = 0;
+		double median = -1;
 		
 		if(numRuns % 2 == 0) {
 			double loc1 = (double) optima[(numRuns /2) -1];
@@ -21,7 +21,7 @@ public class Statistics {
 		return median;
 	}
 	
-	public double mean(int numRuns, int[] optima) {
+	public static double mean(int numRuns, int[] optima) {
 		
 		int total = 0;
 		double mean = 0;
@@ -35,7 +35,7 @@ public class Statistics {
 		
 	}
 	
-	public double variance(int numRuns, int[] optima, double mean) {
+	public static double variance(int numRuns, int[] optima, double mean) {
 		
 		double variance = 0;
 		double sum = 0;
@@ -51,7 +51,7 @@ public class Statistics {
 		return variance;
 	}
 	
-	public double tTest(double mean1, double mean2, double var1, double var2, int runs1, int runs2) {
+	public static double tTest(double mean1, double mean2, double var1, double var2, int runs1, int runs2) {
 
 		double t = 0.0;
 		

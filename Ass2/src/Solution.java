@@ -22,6 +22,7 @@ public class Solution {
 		}
 			
 		sol = shuffle(sol);
+		cutsize = cutsize(sol);
 	}
 		
 	public Solution(boolean[] solution, int graph_type){
@@ -66,35 +67,46 @@ public class Solution {
 	public void cutsize(int cut) {
 		setCutsize(cut);
 	}
-
 	public void setSol(boolean[] soll) {
 		sol = soll;
 	}
-
 	public boolean[] getSol() {
 		return sol;
 	}
-
 	public void setCutsize(int cuts) {
 		cutsize = cuts;
 	}
-
 	public int getCutsize() {
 		return cutsize;
+	}
+	
+	public int localSearch() {
+		//System.out.print("Starting localsearch . . ");
+		// swap bits and stop local search when no improvement found
+		int nrOfSwaps =0;
+		
+		//System.out.println(cutsize + " vs " + cutsize(sol));
+		while( swap() ){
+			//keep swapping until no improvement is found anymore
+			nrOfSwaps++;
+		}
+		//System.out.println("Swaps made: "+nrOfSwaps);
+		
+		return nrOfSwaps;
 	}
 	
 	/**
 	 * Swap computes the first improvement for the Swap Vertex Neighbourhood.
 	 * It returns the best possible swap
-	 * @return whether there was a succesful swap
+	 * @return whether there was a successful swap
 	 */
 	public boolean swap() {
 		// get list of partitions
 		int[] fst = new int[sol.length/2]; //list of nodes in 0
 		int[] snd = new int[sol.length/2]; //list of nodes in 1
 		int fstIndex=0,sndIndex=0;
-		for(int i=0;i<sol.length;i++){
-			if (sol[i]){
+		for(int i=1;i<=sol.length;i++){
+			if (sol[i-1]){
 				snd[sndIndex] = i;
 				sndIndex++;
 			} else {
@@ -102,38 +114,37 @@ public class Solution {
 				fstIndex++;
 			}
 		}
-		
 		//shuffle arrays
 		fst = shuffle(fst); 
 		snd = shuffle(snd);
 		
 		// go through them until an improvement is found;
-		int gain = 0;
-		
+		int gain=0, gain2=0;
 		outerLoop:
 		for (int it1=0;it1<fst.length;it1++){
 			//now fst[it1] ,
-			gain = 0;
-			sol[fst[it1]] = !sol[fst[it1]];
-			gain+= getGain(fst[it1]);
-			
+			//boolean[] old = sol.clone();
+			sol[fst[it1]-1] = !sol[fst[it1]-1];
+			gain = getGain(fst[it1]); // give Id of node (ID is 1-based (whereas sol is 0-based))
+			//System.out.println("1) " + (cutsize-gain) + " vs "+ cutsize(sol) + " Mutated?" + !sol.equals(old)+ " "+gain);
 			for (int it2=0;it2<snd.length;it2++){
 				//now fst[it1] is in 2,
 				// snd[it2] is in on
-				sol[snd[it2]] = !sol[snd[it2]];
-				gain += getGain(snd[it2]);
-								
-				if (gain>0){
+				//old = sol.clone();
+				sol[snd[it2]-1] = !sol[snd[it2]-1];
+				gain2 = gain + getGain(snd[it2]);
+				//System.out.println("\t 2) "+ (cutsize-gain2) + " vs "+ cutsize(sol) + " Mutated?" + !sol.equals(old) + " "+gain2);				
+				if (gain2>0){
 					break outerLoop;
 				} else {
-					sol[snd[it2]] = !sol[snd[it2]];
+					sol[snd[it2]-1] = !sol[snd[it2]-1];
 				}
 			} // end for loop it2
-			sol[fst[it1]]=!sol[fst[it1]];
+			sol[fst[it1]-1]=!sol[fst[it1]-1];
 		} // end for loop it1
 		
-		cutsize -= gain;
-		return (gain >0);
+		cutsize -= gain2;
+		return (gain2 > 0);
 	}
 
 	/** 
@@ -148,6 +159,7 @@ public class Solution {
 		}
 		sol = invert;	
 	}
+
 	
 	/**
 	 * Calculates the gain after a vertex has been changed.
@@ -155,11 +167,13 @@ public class Solution {
 	 * @param swapper
 	 * @return the gain won by changing the partition of the vertex
 	 */
-	private static int getGain(boolean[] solution, int swapper){
+	private static int getGain(boolean[] solution, int idSwapper){
 		int gain =0;
-		ArrayList<Integer> neighbours = Node.getNeighbours(swapper);
+		ArrayList<Integer> neighbours = Node.getNeighbours(idSwapper);
+		//quick check
+		//System.out.println("Getting neighbours of : " +  idSwapper + " vs " + Node.getNode(idSwapper).getId() );
 		for (int i =0;i<neighbours.size();i++){
-			if(solution[swapper]==solution[i]){ // check if neighbour was in different partition;
+			if(solution[idSwapper-1]==solution[neighbours.get(i)-1]){ // check if neighbour was in different partition;
 				gain++; // if so, now they are in the same (one less cut to make!)
 			}else {
 				gain--; // if they were in the same, now a cut has to be made
@@ -174,8 +188,8 @@ public class Solution {
 	 * @param swapper
 	 * @return the gain won by changing the partition of the vertex
 	 */
-	private int getGain(int swapper){
-		return getGain(sol,swapper);
+	private int getGain(int idSwapper){
+		return getGain(sol,idSwapper);
 	}
 	
 	/**
@@ -183,20 +197,20 @@ public class Solution {
 	 * which are in different partitions. This is performed once!
 	 */
 	public void perturbation(int numberOfPerturbs) {
-		
+		//NEEDS VERIFICATION
 		if (numberOfPerturbs>1){
 			int rand1, rand2; 
 			
 			// find random node
 			rand1 = random.nextInt(sol.length);
 			sol[rand1] = !sol[rand1];
-			int gain = getGain(rand1);
+			int gain = getGain(rand1+1);
 			
 			while( ( (rand2 = random.nextInt (sol.length)) == rand1)
 					&& (sol[rand2] == sol[rand1]) ){/* repeat until unique number is found */}
 			
 			sol[rand2]=!sol[rand2];
-			gain+= getGain(rand2);
+			gain+= getGain(rand2+1);
 			cutsize -= gain;
 			
 			perturbation(numberOfPerturbs-1);
@@ -212,40 +226,50 @@ public class Solution {
 	 * the current solution.
 	 */
 	public static int cutsize(boolean[] sol) {
-		// get list of partitions
-		int[] fst = new int[sol.length/2]; //list of nodes in 0
+		// get list of the 0 partition (the 1 partition would yield the same endresult!)
+		int[] fst = new int[sol.length/2+1]; //list of nodes in 0
 		int fstIndex=0;
-		for(int i=0;i<sol.length;i++){
-			if (!sol[i]){
+		for(int i=1;i<=sol.length;i++){
+			if (!sol[i-1]){
 				fst[fstIndex] = i;
 				fstIndex++;
 			}
 		}
 		
+		//In case a bit has been flipped (only one), account for the zero entries at the end; 
+		int cap=fst.length;
+		while(fstIndex<fst.length){
+			fstIndex++; cap--;
+		}
+
+		/*System.out.println("size of fst "+fst.length);
+		System.out.print("Cutsize fst<");
+		for (int k=0; k<fst.length;k++){
+			System.out.print(fst[k] + ", ");
+		}
+		System.out.println(">");*/
+		
+		float[] coordDiff = new float[2]; // In case that the coordinates might be needed;
 		int cutsize = 0;
-		for(int i=0; i < fst.length; i++) {
-			float[] coord = {0,0}; // dit moeten de coördinaten worden: (i.getCoordinates();
-			ArrayList<Integer> neighbours = Node.getNeighbours(i);
-			for (int j =0;j<neighbours.size();i++){
-				if(sol[i]!=sol[j]){ // check if neighbour is in different partition;
+		ArrayList<Integer> neighbours;
+		for(int i=0; i < cap; i++) {
+			neighbours = Node.getNeighbours(fst[i]);
+			for (int j =0;j<neighbours.size();j++){
+				if(sol[fst[i]-1]!=sol[neighbours.get(j)-1]){ // check if neighbour is in different partition;
 					if(type==1) {
 						cutsize++;
-					}
-					else {
-						float x1 = coord[0];
-						float y1 = coord[1];
-						float[] coord2 = {0,0}; // opnieuw error: j.getCoordinates();
-						float x2 = coord2[0];
-						float y2 = coord2[1];
+					} else {
+						// NEEDS VERIFICATION
+						coordDiff[0] = Node.getCoordinates(i)[0] - Node.getCoordinates(j)[0];
+						coordDiff[1] = Node.getCoordinates(i)[1] - Node.getCoordinates(j)[1];
 						           
-						cutsize += (Math.round(Math.sqrt(Math.abs(x1-x2)*Math.abs(x1-x2) + Math.abs(y1-y2)*Math.abs(y1-y2))));
+						cutsize += Math.round(Math.sqrt(coordDiff[0]*coordDiff[0] + 
+								                        coordDiff[1]*coordDiff[1]) ) ;
 					}
 				}
-			}
-		}
+			} //end neighbour loop
+		} // end 0-partition loop
 	
 		return cutsize;
 	}
-	
-	
 }

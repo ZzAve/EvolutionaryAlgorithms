@@ -4,12 +4,11 @@ public class Node {
 
 	private int id;
 	private static int totalId=0;
-	private static ArrayList<Node> allNodes = new ArrayList<Node>(501);
+	private static Node[] allNodes = new Node[501];
 	private int amountEdges;
 	private ArrayList<Integer> neighbours;
-	private static float coordX;
-	private static float coordY;
-	
+	private float coordX;
+	private float coordY;
 
 	/**
 	 * Constructor Node constructs a node. It requires an inputstring which is a whitespace 
@@ -30,9 +29,9 @@ public class Node {
 		}
 
 		//Show the input (nicely ordered)
-		for (int j=0;j<props.size();j++)
-			System.out.print(props.get(j).toString()+", ");
-		System.out.println();
+		//for (int j=0;j<props.size();j++)
+		//	System.out.print(props.get(j).toString()+", ");
+		//System.out.println();
 			
 		
 		//Get Id
@@ -52,8 +51,7 @@ public class Node {
 			neighbours.add( Integer.parseInt( props.get(3+i) ) );
 		}
 		
-		
-		allNodes.add(id,this);
+		allNodes[id] = this;
 		totalId++;
 		
 	}
@@ -61,13 +59,21 @@ public class Node {
 	public int getId(){
 		return id;
 	}
-	
+	public static Node getNode(int idee){
+		return allNodes[idee];
+	}
 	public ArrayList<Integer> getNeighbours(){
 		return neighbours;
 	}
 	
-	public static float[] getCoordinates(){
-		return new float[]{coordX,coordY};
+	public static float[] getCoordinates(int idee){
+		return new float[]{allNodes[idee].getCoord(0),allNodes[idee].getCoord(1)};
+	}
+	public float getCoord(int x){
+		if (x<1)
+			return coordX;
+		else
+			return coordY;
 	}
 	
 	public int getNeighbourSize(){
@@ -75,7 +81,7 @@ public class Node {
 	}
 	
 	public static ArrayList<Integer> getNeighbours(int idee){
-		return allNodes.get(idee).getNeighbours();
+		return allNodes[idee].getNeighbours();
 	}
 	
 }
