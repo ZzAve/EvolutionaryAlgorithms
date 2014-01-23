@@ -8,6 +8,7 @@ public class GraphBipartioning {
 	static Node[] nodes;
 	static int numRuns;
 	static Statistics stat;
+	static int type;		// 1 = Ugraph, 2 = Ggraph
 	
 	
 	//static int popsize = 1;
@@ -19,10 +20,10 @@ public class GraphBipartioning {
 		nodes = new Node[500];
 		numRuns = 30;
 		stat = new Statistics();
-	
+		type = 1;			// 1 = Ugraph, 2 = Ggraph
 		
 		// create all nodes
-		parse();
+		parse(type);			
 		
 		int[] localsMLS = new int[numRuns];
 		int[] localsILS = new int[numRuns];
@@ -67,7 +68,7 @@ public class GraphBipartioning {
 		Solution solution;
 		for (int search=0;search<nrOfStarts;search++){
 			// generate solution
-			solution = new Solution();
+			solution = new Solution(type);
 			
 			//apply local search
 			solution = localSearch(solution);
@@ -79,8 +80,8 @@ public class GraphBipartioning {
 	
 	public static int iteratedLS(int perturb) {
 				
-		Solution solution = new Solution();
-		Solution oldSolution = new Solution();
+		Solution solution = new Solution(type);
+		Solution oldSolution = new Solution(type);
 		oldSolution.setCutsize(1000);
 
 		solution = localSearch(solution);
@@ -88,7 +89,7 @@ public class GraphBipartioning {
 			oldSolution = solution;
 			
 			// Create new solution, which is a perturb solution of the old optimum
-			solution = new Solution(oldSolution.getSol(),oldSolution.getCutsize());
+			solution = new Solution(oldSolution.getSol(),oldSolution.getCutsize(), type);
 			solution.perturbation(perturb);
 			
 			//Apply local search on new solution
@@ -108,7 +109,7 @@ public class GraphBipartioning {
 		
 		// generate population and apply local search
 		for(int i=0; i < popsize; i++) {
-			solutions[i] = new Solution();			
+			solutions[i] = new Solution(type);			
 			solutions[i] = localSearch(solutions[i]);
 			
 			// keep track of worst solution
@@ -127,7 +128,8 @@ public class GraphBipartioning {
 			
 			
 			Solution temp = new Solution( recombine(solutions[rand1].getSol(), 
-					 								solutions[rand2].getSol() ) );
+					 								solutions[rand2].getSol() ),
+					 								type);
 			temp = localSearch(temp);
 			
 			// compare to worst and if better, replace
@@ -161,10 +163,17 @@ public class GraphBipartioning {
 		
 	
 	
-	public static void parse() throws IOException {
+	public static void parse(int type) throws IOException {
 		
-		FileInputStream stream = new FileInputStream("U500.05.txt");
-		//FileInputStream stream = new FileInputStream("G500.005.txt");
+		FileInputStream stream;
+		
+		if(type==1) {
+			stream = new FileInputStream("U500.05.txt");
+		}
+		else {
+			stream = new FileInputStream("G500.005.txt");
+		}
+		
 		DataInputStream in = new DataInputStream(stream);
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
                
@@ -172,7 +181,7 @@ public class GraphBipartioning {
         String line;
         int counter = 0;
         while( (line = br.readLine()) != null){
-        	nodes[counter] = new Node(line);
+        	nodes[counter] = new Node(line, type);
         }
         
 		return;
