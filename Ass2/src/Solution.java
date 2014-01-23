@@ -1,17 +1,13 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-
 public class Solution {
 
 	private Random random;
 	private boolean[] sol;
 	private int cutsize;
 	
-	
-	
-	public Solution() {
-		
+	public Solution() {	
 		random = new Random();
 		sol = new boolean[500];
 			
@@ -40,7 +36,7 @@ public class Solution {
 	public boolean[] shuffle(boolean[] solution) {
 		
 		for(int i=0; i < solution.length; i++){
-			int rand = i + random.nextInt (solution.length-i);
+			int rand = random.nextInt(solution.length);
 			boolean temp = solution[i];
 	        solution[i] = solution[rand];
 	        solution[rand] = temp;
@@ -51,7 +47,7 @@ public class Solution {
 	public int[] shuffle(int[] solution){
 		Random rand = new Random();
 		int index1,index2, temp;
-        for (int i=solution.length*2; i>0; i--){
+        for (int i=solution.length; i>0; i--){
             index1 = rand.nextInt(solution.length);
             index2 = rand.nextInt(solution.length);
             
