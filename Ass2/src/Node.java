@@ -7,7 +7,8 @@ public class Node {
 	private static ArrayList<Node> allNodes = new ArrayList<Node>(501);
 	private int amountEdges;
 	private ArrayList<Integer> neighbours;
-	private float coordX,coordY;
+	private static float coordX;
+	private static float coordY;
 	
 
 	/**
@@ -18,7 +19,7 @@ public class Node {
 	 * 3 # of neighbours
 	 * 4 until ..  neighbours IDs
 	 **/
-	public Node(String nodeProp) {
+	public Node(String nodeProp, int graph_type) {
 		
 		//Split the incoming string, based on the whitespace.
 		String[] props2 = nodeProp.split(" ");
@@ -65,7 +66,7 @@ public class Node {
 		return neighbours;
 	}
 	
-	public float[] getCoordinates(){
+	public static float[] getCoordinates(){
 		return new float[]{coordX,coordY};
 	}
 	

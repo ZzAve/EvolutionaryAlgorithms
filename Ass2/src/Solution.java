@@ -5,9 +5,12 @@ public class Solution {
 
 	private Random random;
 	private boolean[] sol;
+	static private int type;		// 1 = Ugraph, 2 = Ggraph
 	private int cutsize;
 	
-	public Solution() {	
+	public Solution(int graph_type) {
+		
+		type = graph_type;
 		random = new Random();
 		sol = new boolean[500];
 			
@@ -21,13 +24,15 @@ public class Solution {
 		sol = shuffle(sol);
 	}
 		
-	public Solution(boolean[] solution){
+	public Solution(boolean[] solution, int graph_type){
+		type = graph_type;
 		random = new Random();
 		sol = solution;
 		cutsize = cutsize(sol);
 	}
 	
-	public Solution(boolean[] solution, int cut){
+	public Solution(boolean[] solution, int cut, int graph_type){
+		type = graph_type;
 		random = new Random();
 		sol = solution;
 		cutsize = cut;
@@ -219,9 +224,28 @@ public class Solution {
 		
 		int cutsize = 0;
 		for(int i=0; i < fst.length; i++) {
-			cutsize -= getGain(sol,i);
+			float[] coord = {0,0}; // dit moeten de coördinaten worden: (i.getCoordinates();
+			ArrayList<Integer> neighbours = Node.getNeighbours(i);
+			for (int j =0;j<neighbours.size();i++){
+				if(sol[i]!=sol[j]){ // check if neighbour is in different partition;
+					if(type==1) {
+						cutsize++;
+					}
+					else {
+						float x1 = coord[0];
+						float y1 = coord[1];
+						float[] coord2 = {0,0}; // opnieuw error: j.getCoordinates();
+						float x2 = coord2[0];
+						float y2 = coord2[1];
+						           
+						cutsize += (Math.round(Math.sqrt(Math.abs(x1-x2)*Math.abs(x1-x2) + Math.abs(y1-y2)*Math.abs(y1-y2))));
+					}
+				}
+			}
 		}
 	
 		return cutsize;
 	}
+	
+	
 }
