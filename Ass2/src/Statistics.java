@@ -3,10 +3,19 @@ import java.util.Arrays;
 
 public class Statistics {
 
-	public static double median(int numRuns, int[] optima) {
+	public static double median(Answer[] results) {
+		int numRuns = results.length;
+		int[] optima = new int[numRuns];
 		// first sort the stuff
-		Arrays.sort(optima);
+		for (int i=0;i<results.length;i++){
+			optima[i] = results[i].solution.getCutsize();
+		}
 		
+		Arrays.sort(optima);
+		for(int i=0;i<optima.length;i++){
+			System.out.print(optima[i]+",");
+		}
+		System.out.println();
 		double median = -1;
 		
 		if(numRuns % 2 == 0) {
@@ -21,21 +30,32 @@ public class Statistics {
 		return median;
 	}
 	
-	public static double mean(int numRuns, int[] optima) {
+	public static double mean(Answer[] results) {
+		int numRuns = results.length;
+		int[] optima = new int[numRuns];
+		// first sort the stuff
+		for (int i=0;i<results.length;i++){
+			optima[i] = results[i].solution.getCutsize();
+		}
 		
 		int total = 0;
-		double mean = 0;
-		
+				
 		for(int i=0; i < numRuns; i++) {
 			total += optima[i];
 		}
 		
-		mean = total / numRuns;
-		return mean;
+		return ((double)total) / numRuns;
 		
 	}
 	
-	public static double variance(int numRuns, int[] optima, double mean) {
+	public static double variance(Answer[] results) {
+		int numRuns = results.length;
+		int[] optima = new int[numRuns];
+		// first sort the stuff
+		for (int i=0;i<results.length;i++){
+			optima[i] = results[i].solution.getCutsize();
+		}
+		double mean = mean(results);
 		
 		double variance = 0;
 		double sum = 0;

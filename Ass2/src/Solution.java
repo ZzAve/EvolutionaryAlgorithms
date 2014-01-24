@@ -114,6 +114,7 @@ public class Solution {
 				fstIndex++;
 			}
 		}
+		
 		//shuffle arrays
 		fst = shuffle(fst); 
 		snd = shuffle(snd);
@@ -138,6 +139,7 @@ public class Solution {
 					break outerLoop;
 				} else {
 					sol[snd[it2]-1] = !sol[snd[it2]-1];
+					gain2=0;
 				}
 			} // end for loop it2
 			sol[fst[it1]-1]=!sol[fst[it1]-1];
@@ -164,7 +166,7 @@ public class Solution {
 	/**
 	 * Calculates the gain after a vertex has been changed.
 	 * It assumes that getGain is called after the vertex has been altered!
-	 * @param swapper
+	 * @param idSwapper
 	 * @return the gain won by changing the partition of the vertex
 	 */
 	private static int getGain(boolean[] solution, int idSwapper){
@@ -185,7 +187,7 @@ public class Solution {
 	/**
 	 * Calculates the gain after a vertex has been changed.
 	 * It assumes that getGain is called after the vertex has been altered!
-	 * @param swapper
+	 * @param idSswapper
 	 * @return the gain won by changing the partition of the vertex
 	 */
 	private int getGain(int idSwapper){
@@ -198,22 +200,26 @@ public class Solution {
 	 */
 	public void perturbation(int numberOfPerturbs) {
 		//NEEDS VERIFICATION
-		if (numberOfPerturbs>1){
+		//System.out.println("Perturbing (size "+numberOfPerturbs+")");
+		while (numberOfPerturbs>1){
 			int rand1, rand2; 
 			
+			//System.out.println("Starting: "+cutsize(sol));
 			// find random node
 			rand1 = random.nextInt(sol.length);
 			sol[rand1] = !sol[rand1];
 			int gain = getGain(rand1+1);
+			//System.out.println("Gain1: "+gain+" New cutsize: "+(cutsize-gain)+" Cmp: "+cutsize(sol));
 			
 			while( ( (rand2 = random.nextInt (sol.length)) == rand1)
-					&& (sol[rand2] == sol[rand1]) ){/* repeat until unique number is found */}
+					|| (sol[rand2] != sol[rand1]) ){/* repeat until unique number is found */}
 			
 			sol[rand2]=!sol[rand2];
 			gain+= getGain(rand2+1);
+			//System.out.println("Gain2: "+gain+" New cutsize: "+(cutsize-gain)+" Cmp: "+cutsize(sol));
 			cutsize -= gain;
 			
-			perturbation(numberOfPerturbs-1);
+			numberOfPerturbs--;
 		}
 	}
 	
@@ -226,9 +232,10 @@ public class Solution {
 	 * the current solution.
 	 */
 	public static int cutsize(boolean[] sol) {
-		// get list of the 0 partition (the 1 partition would yield the same endresult!)
+		// get list of the 0 partition (the 1 partition would yield the same end result!)
 		int[] fst = new int[sol.length/2+1]; //list of nodes in 0
 		int fstIndex=0;
+				
 		for(int i=1;i<=sol.length;i++){
 			if (!sol[i-1]){
 				fst[fstIndex] = i;

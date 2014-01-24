@@ -1,3 +1,4 @@
+import java.lang.management.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -21,9 +22,10 @@ public class GraphBipartioning {
 		// create all nodes
 		parse(type);			
 		
-		int[] localsMLS = new int[numRuns];
-		int[] localsILS = new int[numRuns];
-		int[] localsGLS = new int[numRuns];
+
+		Answer[] localsMLS = new Answer[numRuns];
+		Answer[] localsILS = new Answer[numRuns];
+		Answer[] localsGLS = new Answer[numRuns];
 		double medianMLS = 0;
 		double meanMLS = 0;
 		double medianILS = 0;
@@ -32,39 +34,71 @@ public class GraphBipartioning {
 		double meanGLS = 0;
 	
 		for(int i=0; i<numRuns; i++) {
+			System.out.println("Round "+(i+1)+"/"+numRuns+")");
 			// entry zero returns the minimum cutsize, entry one the number of vertex swaps;
-			localsMLS[i] = multiLS(1000)[0];
-			//localsILS[i] = iteratedLS(5)[0]; // include perturbation size (2,3,4,5,... ?)
-			//localsGLS[i] = geneticLS(50)[0]; // or 100
+			localsMLS[i] = multiLS(300);
+			localsILS[i] = iteratedLS(3); // include perturbation size (2,3,4,5,... ?)
+			localsGLS[i] = geneticLS(50); // or 100
 		}
 		
-		medianMLS = Statistics.median(numRuns, localsMLS);
-		meanMLS = Statistics.mean(numRuns, localsMLS);
-		medianILS = Statistics.median(numRuns, localsILS);
-		meanILS = Statistics.mean(numRuns, localsILS);
-		medianGLS = Statistics.median(numRuns, localsGLS);
-		meanGLS = Statistics.mean(numRuns, localsGLS);
+		medianMLS = Statistics.median(localsMLS);
+		meanMLS = Statistics.mean(localsMLS);
+		medianILS = Statistics.median(localsILS);
+		meanILS = Statistics.mean(localsILS);
+		medianGLS = Statistics.median(localsGLS);
+		meanGLS = Statistics.mean(localsGLS);
 
-		double varMLS = Statistics.variance(numRuns, localsMLS, meanMLS);
-		double varILS = Statistics.variance(numRuns, localsILS, meanILS);
-		double varGLS = Statistics.variance(numRuns, localsGLS, meanGLS);
+		double varMLS = Statistics.variance(localsMLS);
+		double varILS = Statistics.variance(localsILS);
+		double varGLS = Statistics.variance(localsGLS);
 		
 		//double tTest = stat.tTest(meanILS, meanGLS, varILS, varGLS, numRuns, numRuns);
 		
 		System.out.println("meanMLS = " + meanMLS + ", medianMLS = " + medianMLS);
 		System.out.println("meanILS = " + meanILS + ", medianILS = " + medianILS);
 		System.out.println("meanGLS = " + meanGLS + ", medianGLS = " + medianGLS);
+		
+		//write data to file
+		/*System.out.println("Beginnen met schrijven");
+		try {
+	        BufferedWriter out = new BufferedWriter(new FileWriter("results.txt"),32678);
+	        String settingsString = "SolutionLength,popsize,toursize,fitfunc,linkage,probCross,crossType,";
+	        String settings;
+	        for (int i=0; i<result1.size();i++){
+	        	settings="";
+	        	for (int j=0;j<((double[]) result1.get(i)).length;j++){
+	        		settings+=((double[])result1.get(i))[j]+",";
+	        	}	        	
+	        	out.write(settingsString);
+	        	out.newLine();
+	        	out.write(settings);
+	        	out.newLine();
+	        	
+	        	ArrayList paramList = ((ArrayList)result2.get(i));
+	        	for (int k=0;k<paramList.size();k++){
+	        		for (int l=0;l<((int[]) paramList.get(k)).length;l++){
+	        			out.write(((int[])paramList.get(k))[l]+",");
+	        		}
+	        		out.newLine();
+	        	}
+	        }
+	        out.close();
+	    } catch (IOException e) {
+	    	System.err.println("FileNotFoundException: " + e.getMessage());
+	    }*/
+		
 	}
 	
 	/**
 	 * The Multi-Start Local Search algorithm
 	 * @return
 	 */
-	public static int[] multiLS(int nrOfStarts) {
-		int best = 1000;
+	public static Answer multiLS(int nrOfStarts) {
+		long startCPUtime = getCpuTime();
+		Solution best = new Solution(new boolean[500],1000,type);
 		int nrOfSwaps =0;
 		Solution solution;
-		System.out.print("Perfroming multiLS ");
+		System.out.print("\t Perfroming multiLS ");
 		for (int search=1;search<=nrOfStarts;search++){
 			if (search%50==0) System.out.print(". ");
 			if (search%250==0) System.out.print(search+" ");
@@ -74,24 +108,27 @@ public class GraphBipartioning {
 			
 			//apply local search
 			nrOfSwaps += solution.localSearch();
-			if(solution.getCutsize() < best) best = solution.getCutsize();
+			if(solution.getCutsize() < best.getCutsize()) best = solution;
 		}	
 		System.out.println();
-		System.out.println("Total number of swaps for "+nrOfStarts+" starts: "+nrOfSwaps);
-		return (new int[] {best,nrOfSwaps});
+		System.out.println("\t\t Total number of swaps for "+nrOfStarts+" starts: "+nrOfSwaps);
+		
+		return new Answer(best,nrOfSwaps,getCpuTime() - startCPUtime);
 	}
 
 	
-	public static int[] iteratedLS(int perturb) {
-				
-		int nrOfSwaps = 0;
+	public static Answer iteratedLS(int perturb) {
+		long startCPUtime = getCpuTime();
+		System.out.print("\t Perfroming iteratedLS ");	
+		int nrOfSwaps = 0; int threshold = 1500; int count=threshold;
 		Solution solution = new Solution(type);
 		Solution oldSolution = new Solution(type);
 		oldSolution.setCutsize(1000);
-		
-
+						
+		//Apply local search on new solution
 		nrOfSwaps+= solution.localSearch();
 		while (solution.getCutsize() < oldSolution.getCutsize()){
+			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
 			oldSolution = solution;
 			
 			// Create new solution, which is a perturb solution of the old optimum
@@ -101,32 +138,49 @@ public class GraphBipartioning {
 			//Apply local search on new solution
 			nrOfSwaps+= solution.localSearch();
 		}
+		System.out.println();
+		System.out.println("\t\t Total number of swaps: "+nrOfSwaps);
 		
-		return (new int[] {solution.getCutsize(),nrOfSwaps});
+		
+		return new Answer(oldSolution,nrOfSwaps,getCpuTime() - startCPUtime);
 	}
 	
-	public static int[] geneticLS(int popsize) {
-		
+	public static Answer geneticLS(int popsize) {
+		long startCPUtime = getCpuTime();
+		System.out.print("\t Performing geneticLS ");
 		Solution[] solutions = new Solution[popsize];
-		int nrOfSwaps =0;
+		int nrOfSwaps =0; int threshold=1000; int count=threshold;
 		
 		// generate population and apply local search
 		for(int i=0; i < popsize; i++) {
+			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
 			solutions[i] = new Solution(type);			
 			nrOfSwaps += solutions[i].localSearch();
-			
 		}
 		
+		/*System.out.print("Before sorting <");
+		for( int i=0;i<solutions.length;i++){
+			System.out.print(solutions[i].getCutsize()+",");
+		}
+		System.out.println(">");*/
 		// sort the solutions
 		solutions = quickSort(solutions);
-		 
+		/*System.out.print("After sorting <");
+		for( int i=0;i<solutions.length;i++){
+			System.out.print(solutions[i].getCutsize()+",");
+		}
+		System.out.println(">");*/
+		
 		int rand1,rand2;
 		// recombine and mutate
 		boolean changed = true;
 		while (changed){
+			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
+			//get two parents
 			rand1 = random.nextInt(popsize);
-			rand2 = random.nextInt(popsize);
+			while ((rand2 = random.nextInt(popsize))==rand1){/*repeat until unique number is found*/}
 			
+			// Create the child, and perform localsearch to find a local optimum
 			Solution temp = recombine(solutions[rand1],solutions[rand2]);
 			nrOfSwaps += temp.localSearch();
 			
@@ -134,21 +188,23 @@ public class GraphBipartioning {
 			changed = temp.getCutsize() < solutions[solutions.length-1].getCutsize();
 			if(changed){
 				solutions = insert(solutions,temp);
+				//System.out.println("change! " +temp.getCutsize() );
 			}
-		}
-		
-		
-		return (new int[] {solutions[0].getCutsize(),nrOfSwaps});
+
+		}		
+		System.out.println();
+		System.out.println("\t\t Total number of swaps: "+nrOfSwaps);
+		return new Answer(solutions[0],nrOfSwaps,getCpuTime() - startCPUtime);
 	}
 		
 	
 	/**
-	 * 
-	 * @param type
-	 * @throws IOException
+	 * Parse tries to import the files which hold the information about the graphs.
+	 * If it does not work out, it throws an exception.
+	 * @param type the type of graph one wants to explore. 1 for U graph, anything else for G graph
+	 * @throws IOException in case the file cannot be found and or read.
 	 */
 	public static void parse(int type) throws IOException {
-		
 		FileInputStream stream;
 		if(type==1) {
 			stream = new FileInputStream("U500.05.txt");
@@ -173,43 +229,49 @@ public class GraphBipartioning {
 	 * the first solution, in order to get the second solution. 
 	 * @param sol1 the first solution
 	 * @param sol2 the second solution
-	 * @return the hamming distance between two solutions
+	 * @return the Hamming distance between two solutions
 	 */
 	public static int hammingDistance(boolean[] sol1, boolean[] sol2) {
-		
 		int distance = 0;
-		
 		for(int i=0; i<sol1.length; i++) {
 			if(sol1[i]!=sol2[i]) distance++; 
 		}
-		
 		return distance;
 	}
 	
 	/**
-	 * 
-	 * @param parent1
-	 * @param parent2
-	 * @return
+	 * Recombine tries to generate offspring from to solution parents. It tries
+	 * to preserve information by setting those nodes which appear in the same partition
+	 * in the parents also in the same partition in the child.
+	 * The other nodes are randomly assigned a 1 or a 0 (without exceeding the max number of 250)
+	 * @param parent1 the first parent used for recombination
+	 * @param parent2 the second parent used for recombination
+	 * @return the child solution, which is a combination of both parents and some degree of randomness
 	 */
 	public static Solution recombine(Solution parent1, Solution parent2) {
-		
-		boolean[] b0 = new boolean[500];
-		
+		// ensure that the ones and zeros represent that same partitions (i.e. if the parents are
+		// more than 250 switches apart, invert on of the parents. 
 		if(hammingDistance(parent1.getSol(), parent2.getSol()) > 250) parent1.invert() ;
-		boolean b = random.nextBoolean();
+		
 		int count0 = 0;
 		int count1 = 0;
-		
 		int[] bits = new int[500]; 
+		
+		// Get bitstrings for parents and initialise child
 		boolean[] b1 = parent1.getSol();
 		boolean[] b2 = parent2.getSol();
+		boolean[] b0 = new boolean[500];
+		
 		// copies the bits that are equal for both solutions
 		for(int i=0; i<500; i++) {
-			if(!b1[i]&&!b2[i]) {bits[i] = 0; count0++;}
-			else {
-				if(b1[i]&&b2[i]) {bits[i] = 1; count1++;}
-				else { 
+			if(!b1[i]&&!b2[i]){
+				bits[i] = 0; 
+				count0++;
+			}else {
+				if(b1[i]&&b2[i]){
+					bits[i] = 1; 
+					count1++;
+				}else { 
 					bits[i] = 2;
 				}
 			}
@@ -219,26 +281,27 @@ public class GraphBipartioning {
 		for(int i=0; i<500; i++) {
 			if(bits[i]==0){
 				b0[i] = false;
+			}else if(bits[i]==1){
+				b0[i] = true;
 			}else {
-				if(bits[i]==1){
-					b0[i] = true;
-				}else {
-					if((count0<250)&&(count1<250)) {
-						b0[i] = b;
-						if(b) count1++; else count0++;
-						b = random.nextBoolean();
-					} else {
-						b0[i] = (count0==250);
-						if (b0[i]) count1++; else count0++;
-					}
+				if((count0<250)&&(count1<250)) {
+					// if there are not enough ones and zeros pick one randomly
+					b0[i] = random.nextBoolean();
+				} else {
+					b0[i] = (count0==250);
 				}
+				if (b0[i]) count1++; else count0++;
 			}
 		}
 		return new Solution(b0,type);
-	
 	}
 	
-	
+	/**
+	 * quickSort sorts an array of solutions based on their cutsize.
+	 * It sorts the solutions in an ascending order (lowest cutsize first)
+	 * @param pop the array with solutions that need to be sorted
+	 * @return the sorted array with solution
+	 */
 	public static Solution[] quickSort(Solution[] pop) {
 		
 		ArrayList<Solution> pop2 = new ArrayList<Solution>();
@@ -247,11 +310,17 @@ public class GraphBipartioning {
 		}
 		pop2 = quickSort(pop2);
 		for(int i=0; i<pop.length; i++) {
-			pop[i] = pop2.get(i);
+			pop[i] = pop2.get( (pop2.size()-1) - i);
 		}
 		return pop;
 	}
 	
+	/**
+	 * quicksort sorts an arraylist with solutions based on their cutsize.
+	 * It sorts the arraylist in an descending order (highest first)
+	 * @param pop the arraylist that needs to be sorted
+	 * @return the sorted arraylist with solutions (descending cutsize)
+	 */
 	public static ArrayList<Solution> quickSort(ArrayList<Solution> pop){
         int length = pop.size();
         if(length<2){
@@ -352,4 +421,38 @@ public class GraphBipartioning {
         return sols;
     }
 
+    /** Get CPU time in nanoseconds. */
+    public static long getCpuTime( ) {
+        ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+        return bean.isCurrentThreadCpuTimeSupported( ) ?
+            bean.getCurrentThreadCpuTime( ) : 0L;
+    }
+     
+    /** Get user time in nanoseconds. */
+    public long getUserTime( ) {
+        ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+        return bean.isCurrentThreadCpuTimeSupported( ) ?
+            bean.getCurrentThreadUserTime( ) : 0L;
+    }
+
+    /** Get system time in nanoseconds. */
+    public long getSystemTime( ) {
+        ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+        return bean.isCurrentThreadCpuTimeSupported( ) ?
+            (bean.getCurrentThreadCpuTime( ) - bean.getCurrentThreadUserTime( )) : 0L;
+    }
+    
+
+}
+
+class Answer{
+	protected Solution solution;
+	protected int nrOfSwaps;
+	protected long time;
+	
+	public Answer(Solution sol, int swaps, long cpuTime){
+		solution = sol;
+		nrOfSwaps = swaps;
+		time = cpuTime;
+	}
 }
