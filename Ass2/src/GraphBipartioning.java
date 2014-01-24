@@ -22,71 +22,67 @@ public class GraphBipartioning {
 		// create all nodes
 		parse(type);			
 		
-
 		Answer[] localsMLS = new Answer[numRuns];
 		Answer[] localsILS = new Answer[numRuns];
 		Answer[] localsGLS = new Answer[numRuns];
-		double medianMLS = 0;
-		double meanMLS = 0;
-		double medianILS = 0;
-		double meanILS = 0;
-		double medianGLS = 0;
-		double meanGLS = 0;
 	
 		for(int i=0; i<numRuns; i++) {
 			System.out.println("Round "+(i+1)+"/"+numRuns+")");
 			// entry zero returns the minimum cutsize, entry one the number of vertex swaps;
-			localsMLS[i] = multiLS(300);
-			localsILS[i] = iteratedLS(3); // include perturbation size (2,3,4,5,... ?)
-			localsGLS[i] = geneticLS(50); // or 100
+			//localsMLS[i] = multiLS(1000);
+			//localsILS[i] = iteratedLS(9); // include perturbation size (2,3,4,5,... ?)
+			localsGLS[i] = geneticLS(100); // or 100
 		}
-		
-		medianMLS = Statistics.median(localsMLS);
-		meanMLS = Statistics.mean(localsMLS);
-		medianILS = Statistics.median(localsILS);
-		meanILS = Statistics.mean(localsILS);
-		medianGLS = Statistics.median(localsGLS);
-		meanGLS = Statistics.mean(localsGLS);
-
-		double varMLS = Statistics.variance(localsMLS);
-		double varILS = Statistics.variance(localsILS);
-		double varGLS = Statistics.variance(localsGLS);
-		
-		//double tTest = stat.tTest(meanILS, meanGLS, varILS, varGLS, numRuns, numRuns);
-		
-		System.out.println("meanMLS = " + meanMLS + ", medianMLS = " + medianMLS);
-		System.out.println("meanILS = " + meanILS + ", medianILS = " + medianILS);
-		System.out.println("meanGLS = " + meanGLS + ", medianGLS = " + medianGLS);
+			
+		//Answer[] results = localsMLS;
+		//Answer[] results = localsMLS;
+		Answer[] results = localsGLS;
 		
 		//write data to file
-		/*System.out.println("Beginnen met schrijven");
+		System.out.println("Beginnen met schrijven");
 		try {
-	        BufferedWriter out = new BufferedWriter(new FileWriter("results.txt"),32678);
-	        String settingsString = "SolutionLength,popsize,toursize,fitfunc,linkage,probCross,crossType,";
-	        String settings;
-	        for (int i=0; i<result1.size();i++){
-	        	settings="";
-	        	for (int j=0;j<((double[]) result1.get(i)).length;j++){
-	        		settings+=((double[])result1.get(i))[j]+",";
-	        	}	        	
-	        	out.write(settingsString);
-	        	out.newLine();
-	        	out.write(settings);
-	        	out.newLine();
-	        	
-	        	ArrayList paramList = ((ArrayList)result2.get(i));
-	        	for (int k=0;k<paramList.size();k++){
-	        		for (int l=0;l<((int[]) paramList.get(k)).length;l++){
-	        			out.write(((int[])paramList.get(k))[l]+",");
-	        		}
-	        		out.newLine();
-	        	}
+	        BufferedWriter out1 = new BufferedWriter(new FileWriter("./results/results_short.txt"),32678);
+	        BufferedWriter out2 = new BufferedWriter(new FileWriter("./results/results_long.txt"),32678);
+	        
+	        String settingsString1 = "bestid,bestVal,mean,median,variance,avgSwaps,avgTime [ms],type";
+	        String settingsString2 = "Run,bestVal,cpuTime[ms],nrOfSwaps,type";
+	        String settings1 = "";
+	        String settings2 = "";
+	        
+	        // short file
+        	settings1 += Statistics.best(results)[0]+",";
+        	settings1 += Statistics.best(results)[1] + ",";
+        	settings1 += Statistics.mean(results)+ ",";
+        	settings1 += Statistics.median(results)+ ",";
+        	settings1 += Statistics.variance(results)+",";
+        	settings1 += Statistics.avgSwap(results)+",";
+        	settings1 += Statistics.avgTime(results)+",";
+        	settings1 += type;
+        	out1.write(settingsString1);
+        	out1.newLine();
+        	out1.write(settings1);
+        	out1.newLine();
+        	out1.close();
+        	
+        	out2.write(settingsString2);
+        	out2.newLine();
+	        for (int i=0; i<results.length;i++){        	             
+	        	// long file
+	        	settings2="";
+	        	settings2 += i + ",";
+	        	settings2 += results[i].solution.getCutsize()+",";
+	        	settings2 += (results[i].time/1000000.0)+ ",";
+	        	settings2 += results[i].nrOfSwaps;
+	        	settings2 += type;
+	        	out2.write(settings2);
+	        	out2.newLine();
 	        }
-	        out.close();
+	        out2.close();
 	    } catch (IOException e) {
 	    	System.err.println("FileNotFoundException: " + e.getMessage());
-	    }*/
+	    }
 		
+	    System.out.println("Done!");
 	}
 	
 	/**
@@ -113,21 +109,22 @@ public class GraphBipartioning {
 		System.out.println();
 		System.out.println("\t\t Total number of swaps for "+nrOfStarts+" starts: "+nrOfSwaps);
 		
-		return new Answer(best,nrOfSwaps,getCpuTime() - startCPUtime);
+		return new Answer(best,nrOfSwaps,(getCpuTime() - startCPUtime));
 	}
 
 	
 	public static Answer iteratedLS(int perturb) {
 		long startCPUtime = getCpuTime();
 		System.out.print("\t Perfroming iteratedLS ");	
-		int nrOfSwaps = 0; int threshold = 1500; int count=threshold;
+		int nrOfSwaps = 0; int threshold = 500; int count=threshold;
 		Solution solution = new Solution(type);
 		Solution oldSolution = new Solution(type);
 		oldSolution.setCutsize(1000);
 						
 		//Apply local search on new solution
+		int unchanged=0;
 		nrOfSwaps+= solution.localSearch();
-		while (solution.getCutsize() < oldSolution.getCutsize()){
+		while (unchanged<10){
 			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
 			oldSolution = solution;
 			
@@ -137,19 +134,25 @@ public class GraphBipartioning {
 			
 			//Apply local search on new solution
 			nrOfSwaps+= solution.localSearch();
+			
+			if (solution.getCutsize() < oldSolution.getCutsize()){
+				unchanged = 0;
+				oldSolution = solution;
+			} else {
+				unchanged++;
+			}
 		}
 		System.out.println();
 		System.out.println("\t\t Total number of swaps: "+nrOfSwaps);
 		
-		
-		return new Answer(oldSolution,nrOfSwaps,getCpuTime() - startCPUtime);
+		return new Answer(oldSolution,nrOfSwaps,(getCpuTime() - startCPUtime));
 	}
 	
 	public static Answer geneticLS(int popsize) {
 		long startCPUtime = getCpuTime();
 		System.out.print("\t Performing geneticLS ");
 		Solution[] solutions = new Solution[popsize];
-		int nrOfSwaps =0; int threshold=1000; int count=threshold;
+		int nrOfSwaps =0; int threshold=5000; int count=threshold;
 		
 		// generate population and apply local search
 		for(int i=0; i < popsize; i++) {
@@ -158,23 +161,14 @@ public class GraphBipartioning {
 			nrOfSwaps += solutions[i].localSearch();
 		}
 		
-		/*System.out.print("Before sorting <");
-		for( int i=0;i<solutions.length;i++){
-			System.out.print(solutions[i].getCutsize()+",");
-		}
-		System.out.println(">");*/
 		// sort the solutions
 		solutions = quickSort(solutions);
-		/*System.out.print("After sorting <");
-		for( int i=0;i<solutions.length;i++){
-			System.out.print(solutions[i].getCutsize()+",");
-		}
-		System.out.println(">");*/
 		
 		int rand1,rand2;
 		// recombine and mutate
-		boolean changed = true;
-		while (changed){
+		boolean changed;
+		int unchanged =0;
+		while (unchanged<10*popsize){
 			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
 			//get two parents
 			rand1 = random.nextInt(popsize);
@@ -184,16 +178,32 @@ public class GraphBipartioning {
 			Solution temp = recombine(solutions[rand1],solutions[rand2]);
 			nrOfSwaps += temp.localSearch();
 			
+			
 			// compare to worst and if better, replace
-			changed = temp.getCutsize() < solutions[solutions.length-1].getCutsize();
-			if(changed){
-				solutions = insert(solutions,temp);
-				//System.out.println("change! " +temp.getCutsize() );
+			changed = false; // assume no better solution is found			
+			if(temp.getCutsize() < solutions[solutions.length-1].getCutsize()){ // verify if better solution is found
+				//ensure that solution is not already present
+				int i;
+				for (i=0;i<solutions.length;i++){
+					if (solutions[i].getSol().equals(temp.getSol())){
+						break;
+					}
+				}
+				// if for loop did not break, the new solution is unique
+				// And changed is set to true (since i equals solutions.length is at no point the break was hit)
+				changed = (i==solutions.length); 
 			}
-
+			
+			if (changed){
+				solutions = insert(solutions,temp);
+				unchanged = 0;
+			} else {
+				unchanged++;
+			}
+				//System.out.println("change! "+(unchanged==0)+ " " +temp.getCutsize() );
 		}		
 		System.out.println();
-		System.out.println("\t\t Total number of swaps: "+nrOfSwaps);
+		System.out.println("\t\t Total number of swaps: "+nrOfSwaps + " in "+  ((getCpuTime() - startCPUtime)/1000000) + "ms");
 		return new Answer(solutions[0],nrOfSwaps,getCpuTime() - startCPUtime);
 	}
 		
@@ -449,6 +459,7 @@ class Answer{
 	protected Solution solution;
 	protected int nrOfSwaps;
 	protected long time;
+	protected int[] best=new int[2];
 	
 	public Answer(Solution sol, int swaps, long cpuTime){
 		solution = sol;

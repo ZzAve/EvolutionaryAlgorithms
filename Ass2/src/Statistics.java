@@ -3,6 +3,34 @@ import java.util.Arrays;
 
 public class Statistics {
 
+	public static int[] best(Answer[] results){
+		int best = 1000; int bestId=-1;
+		for (int i=0;i<results.length;i++){
+			if (results[i].solution.getCutsize()<best){
+				best = results[i].solution.getCutsize();
+				bestId = i;
+			}
+			
+			
+		}
+		return new int[] {bestId,best};
+	}
+	
+	public static int avgSwap(Answer[] results){
+		int total=0;
+		for (int i=0;i<results.length;i++){
+			total+= results[i].nrOfSwaps;
+		}
+		return (total/results.length);
+	}
+	public static int avgTime(Answer[] results){
+		int total=0;
+		for (int i=0;i<results.length;i++){
+			total+= (results[i].time/1000000.0);
+		}
+		return (total/results.length);
+	}
+	
 	public static double median(Answer[] results) {
 		int numRuns = results.length;
 		int[] optima = new int[numRuns];
@@ -12,10 +40,7 @@ public class Statistics {
 		}
 		
 		Arrays.sort(optima);
-		for(int i=0;i<optima.length;i++){
-			System.out.print(optima[i]+",");
-		}
-		System.out.println();
+
 		double median = -1;
 		
 		if(numRuns % 2 == 0) {
