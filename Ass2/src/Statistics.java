@@ -96,15 +96,10 @@ public class Statistics {
 		return variance;
 	}
 	
-	public static double tTest(double mean1, double mean2, double var1, double var2, int runs1, int runs2) {
-
-		double t = 0.0;
-		
+	public static double tTest(double mean1, double mean2, double var1, double var2, int runs1, int runs2) {		
 		double diff = Math.abs(mean1 - mean2);
 		double d = (var1 / runs1) + (var2 / runs2);
-		
-		t = diff / (Math.sqrt(d));
-		return t;
+		return diff / (Math.sqrt(d));
 	}
 	
 	

@@ -263,7 +263,7 @@ public class Solution {
 			neighbours = Node.getNeighbours(fst[i]);
 			for (int j =0;j<neighbours.size();j++){
 				if(sol[fst[i]-1]!=sol[neighbours.get(j)-1]){ // check if neighbour is in different partition;
-					if(type==1) {
+					if(type==1 ||type==2) {
 						cutsize++;
 					} else {
 						// NEEDS VERIFICATION

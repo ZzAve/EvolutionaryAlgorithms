@@ -1,0 +1,2 @@
+bestid,bestVal,mean,median,variance,avgSwaps,avgTime [ms],type
+9,49,54.06666666666667,54.0,4.662222222222222,80360,12822,2

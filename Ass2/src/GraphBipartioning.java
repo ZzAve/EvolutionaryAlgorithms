@@ -17,7 +17,7 @@ public class GraphBipartioning {
 		
 		random = new Random();
 		numRuns = 30;
-		type = 1;			// 1 = Ugraph, 2 = Ggraph
+		type = 2;			// 1 = Ugraph, 2 = Ggraph
 		
 		// create all nodes
 		parse(type);			
@@ -30,13 +30,13 @@ public class GraphBipartioning {
 			System.out.println("Round "+(i+1)+"/"+numRuns+")");
 			// entry zero returns the minimum cutsize, entry one the number of vertex swaps;
 			//localsMLS[i] = multiLS(1000);
-			//localsILS[i] = iteratedLS(9); // include perturbation size (2,3,4,5,... ?)
-			localsGLS[i] = geneticLS(100); // or 100
+			localsILS[i] = iteratedLS(6); // include perturbation size (2,3,4,5,... ?)
+			//localsGLS[i] = geneticLS(50); // or 100
 		}
 			
 		//Answer[] results = localsMLS;
-		//Answer[] results = localsMLS;
-		Answer[] results = localsGLS;
+		Answer[] results = localsILS;
+		//Answer[] results = localsGLS;
 		
 		//write data to file
 		System.out.println("Beginnen met schrijven");
