@@ -9,7 +9,6 @@ public class GraphBipartioning {
 	private static int numRuns;
 	protected static int type;		// 1 = Ugraph, 2 = Ggraph
 	
-	
 	//static int popsize = 1;
 	//static boolean[][] population = new boolean[popsize][500];
 	
@@ -17,7 +16,7 @@ public class GraphBipartioning {
 		
 		random = new Random();
 		numRuns = 30;
-		type = 2;			// 1 = Ugraph, 2 = Ggraph
+		type = 0;			// 1 = Ugraph, 2 = Ggraph // 0 = Ugraph with distance
 		
 		// create all nodes
 		parse(type);			
@@ -30,12 +29,12 @@ public class GraphBipartioning {
 			System.out.println("Round "+(i+1)+"/"+numRuns+")");
 			// entry zero returns the minimum cutsize, entry one the number of vertex swaps;
 			//localsMLS[i] = multiLS(1000);
-			localsILS[i] = iteratedLS(6); // include perturbation size (2,3,4,5,... ?)
-			//localsGLS[i] = geneticLS(50); // or 100
+			//localsILS[i] = iteratedLS(7); // include perturbation size (2,3,4,5,... ?)
+			localsGLS[i] = geneticLS(50); // or 100
 		}
 			
 		//Answer[] results = localsMLS;
-		Answer[] results = localsILS;
+		Answer[] results = localsGLS;
 		//Answer[] results = localsGLS;
 		
 		//write data to file
@@ -112,21 +111,25 @@ public class GraphBipartioning {
 		return new Answer(best,nrOfSwaps,(getCpuTime() - startCPUtime));
 	}
 
-	
+	/**
+	 * The iterated local search algorithm
+	 * @param perturb
+	 * @return
+	 */
 	public static Answer iteratedLS(int perturb) {
 		long startCPUtime = getCpuTime();
 		System.out.print("\t Perfroming iteratedLS ");	
 		int nrOfSwaps = 0; int threshold = 500; int count=threshold;
 		Solution solution = new Solution(type);
-		Solution oldSolution = new Solution(type);
-		oldSolution.setCutsize(1000);
+		Solution oldSolution;
 						
+		//System.out.println("Current fit: "+solution.getCutsize());
 		//Apply local search on new solution
 		int unchanged=0;
 		nrOfSwaps+= solution.localSearch();
+		oldSolution = solution;
 		while (unchanged<10){
 			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
-			oldSolution = solution;
 			
 			// Create new solution, which is a perturb solution of the old optimum
 			solution = new Solution(oldSolution.getSol(),oldSolution.getCutsize(), type);
@@ -148,6 +151,11 @@ public class GraphBipartioning {
 		return new Answer(oldSolution,nrOfSwaps,(getCpuTime() - startCPUtime));
 	}
 	
+	/**
+	 * The genetic local search algorithm
+	 * @param popsize
+	 * @return
+	 */
 	public static Answer geneticLS(int popsize) {
 		long startCPUtime = getCpuTime();
 		System.out.print("\t Performing geneticLS ");
@@ -216,7 +224,7 @@ public class GraphBipartioning {
 	 */
 	public static void parse(int type) throws IOException {
 		FileInputStream stream;
-		if(type==1) {
+		if(type==1 || type ==0) {
 			stream = new FileInputStream("U500.05.txt");
 		}
 		else {
@@ -337,7 +345,7 @@ public class GraphBipartioning {
                 return pop;
         }
         else{
-            int pivot;
+            long pivot;
             int ind = length/2;
             
             ArrayList<Solution> L = new ArrayList<Solution>();
@@ -349,7 +357,7 @@ public class GraphBipartioning {
             for(int i=0;i<length;i++){
                 if(i!=ind){
                     Solution sol = (Solution) pop.get(i);
-                    int fitness = sol.getCutsize();
+                    long fitness = sol.getCutsize();
                     
                     if(fitness > pivot){
                         L.add(sol);
@@ -375,7 +383,15 @@ public class GraphBipartioning {
          }
 	}
 	
-	
+	/**
+	 * insert tries to insert a new solution into the current solution array
+	 * It inserts it in a sorted way, where the solutions are sorted ascending by
+	 * their cutsize. Since the length of the solution does not change, the weakest entry
+	 * disappears from the array
+	 * @param sols the current array of solutions
+	 * @param sol the solution that needs to be inserted into the solution.
+	 * @return
+	 */
 	private static Solution[] insert(Solution[] sols, Solution sol){
 		ArrayList<Solution> solus = new ArrayList<Solution>();
 		for (int i=0;i<sols.length;i++){
@@ -388,8 +404,12 @@ public class GraphBipartioning {
 		return sols;
 	}
 	/**
-     * 
-     * @param sol
+     * insert handles an arrayList of solutions, and inserts a new solution into the
+     * arrayList is a sorted manner. The arrayList is sorted ascending based on the cut
+     * size of the solutions. This is the startup class.
+     * @param sol the solution to be added to the arrayList
+     * @param sols the arraylist with solutions
+     * @returns the sorted arrayList with solutions, including sol
      */
     private static ArrayList<Solution> insert(ArrayList<Solution> sols, Solution sol){
         int mid = sols.size()/2;
@@ -402,7 +422,7 @@ public class GraphBipartioning {
     }
        
     /**
-     * 
+     * Iterative function that sorts the solution arrayList accordingly.
      * @param sol
      * @param left
      * @param right
@@ -439,14 +459,14 @@ public class GraphBipartioning {
     }
      
     /** Get user time in nanoseconds. */
-    public long getUserTime( ) {
+    public static long getUserTime( ) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
         return bean.isCurrentThreadCpuTimeSupported( ) ?
             bean.getCurrentThreadUserTime( ) : 0L;
     }
 
     /** Get system time in nanoseconds. */
-    public long getSystemTime( ) {
+    public static long getSystemTime( ) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
         return bean.isCurrentThreadCpuTimeSupported( ) ?
             (bean.getCurrentThreadCpuTime( ) - bean.getCurrentThreadUserTime( )) : 0L;
@@ -455,12 +475,24 @@ public class GraphBipartioning {
 
 }
 
+/**
+ * Helper class Answer stores the answers obtained by running the MLS
+ * ILS and GLS algorithms
+ * @author Julius
+ *
+ */
 class Answer{
 	protected Solution solution;
 	protected int nrOfSwaps;
 	protected long time;
 	protected int[] best=new int[2];
 	
+	/**
+	 * Constructor that instantiates the the instance
+	 * @param sol the solution
+	 * @param swaps total nr of swaps
+	 * @param cpuTime the amount of time needed to get the solution
+	 */
 	public Answer(Solution sol, int swaps, long cpuTime){
 		solution = sol;
 		nrOfSwaps = swaps;

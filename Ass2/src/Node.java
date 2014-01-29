@@ -1,5 +1,14 @@
 import java.util.ArrayList;
 
+/**
+ * Class Node is the class that entails all information about the graph (U graph or
+ * G graph). It keeps a static list of all instantiated Nodes for easy enumeration.
+ * 
+ * It copies the information from the 'U500.05.txt' (or similar) directly, assuming it is 
+ * whitespace separated.
+ * @author Myrna, Julius
+ *
+ */
 public class Node {
 
 	private int id;
@@ -39,8 +48,8 @@ public class Node {
 		
 		//Get node axes
 		String[] coords = props.get(1).split(",");
-		coordX = Float.parseFloat( coords[0].substring(1) );
-		coordY = Float.parseFloat( coords[1].substring(0,coords[1].length()-1 ) );
+		coordX = Math.round(100*Float.parseFloat( coords[0].substring(1) ));
+		coordY = Math.round(100*Float.parseFloat( coords[1].substring(0,coords[1].length()-1 ) ));
 		
 		//Read amount of edges and neighbours
 		amountEdges = Integer.parseInt( props.get(2) );
@@ -66,14 +75,13 @@ public class Node {
 		return neighbours;
 	}
 	
+	/**
+	 * getCoordinates gives the coordinates of the Node with the id 'idee'
+	 * @param idee the id of the Node the coordinates are requested from
+	 * @return the coordinates of the Node with id 'idee'
+	 */
 	public static float[] getCoordinates(int idee){
-		return new float[]{allNodes[idee].getCoord(0),allNodes[idee].getCoord(1)};
-	}
-	public float getCoord(int x){
-		if (x<1)
-			return coordX;
-		else
-			return coordY;
+		return new float[]{allNodes[idee].coordX,allNodes[idee].coordY};
 	}
 	
 	public int getNeighbourSize(){
@@ -82,6 +90,22 @@ public class Node {
 	
 	public static ArrayList<Integer> getNeighbours(int idee){
 		return allNodes[idee].getNeighbours();
+	}
+
+	/**
+	 * distance calculates the Euclidean distance between two Nodes
+	 * @param firstNode the first Node
+	 * @param secondNode the second Node
+	 * @return the Euclidean distance between the two nodes, multiplied with a 
+	 * factor of 100.000
+	 */
+	public static long distance(int firstNode, int secondNode) {
+		float[] fst = getCoordinates(firstNode);
+		float[] snd = getCoordinates(secondNode);
+		
+		double diff = Math.sqrt(Math.pow(fst[0]-snd[0],2)+Math.pow(fst[1]-snd[1],2));
+		//System.out.println("diff:  "+diff);
+		return (long)diff;
 	}
 	
 }
