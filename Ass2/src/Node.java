@@ -103,7 +103,7 @@ public class Node {
 		float[] fst = getCoordinates(firstNode);
 		float[] snd = getCoordinates(secondNode);
 		
-		double diff = Math.sqrt(Math.pow(fst[0]-snd[0],2)+Math.pow(fst[1]-snd[1],2));
+		double diff = Math.abs(fst[0]-snd[0])+Math.abs(fst[1]-snd[1]);
 		//System.out.println("diff:  "+diff);
 		return (long)diff;
 	}

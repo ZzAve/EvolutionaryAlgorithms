@@ -21,21 +21,17 @@ public class GraphBipartioning {
 		// create all nodes
 		parse(type);			
 		
-		Answer[] localsMLS = new Answer[numRuns];
-		Answer[] localsILS = new Answer[numRuns];
-		Answer[] localsGLS = new Answer[numRuns];
+		Answer[] results = new Answer[numRuns];
+		
 	
 		for(int i=0; i<numRuns; i++) {
 			System.out.println("Round "+(i+1)+"/"+numRuns+")");
 			// entry zero returns the minimum cutsize, entry one the number of vertex swaps;
-			//localsMLS[i] = multiLS(1000);
-			//localsILS[i] = iteratedLS(7); // include perturbation size (2,3,4,5,... ?)
-			localsGLS[i] = geneticLS(50); // or 100
+			results[i] = multiLS(500);
+			//results[i] = iteratedLS(3); // include perturbation size (2,3,4,5,... ?)
+			//results[i] = geneticLS(100); // or 100
 		}
-			
-		//Answer[] results = localsMLS;
-		Answer[] results = localsGLS;
-		//Answer[] results = localsGLS;
+
 		
 		//write data to file
 		System.out.println("Beginnen met schrijven");
@@ -90,7 +86,7 @@ public class GraphBipartioning {
 	 */
 	public static Answer multiLS(int nrOfStarts) {
 		long startCPUtime = getCpuTime();
-		Solution best = new Solution(new boolean[500],1000,type);
+		Solution best = new Solution(new boolean[500],Long.MAX_VALUE,type);
 		int nrOfSwaps =0;
 		Solution solution;
 		System.out.print("\t Perfroming multiLS ");

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+
 import java.util.Random;
 
 /**
@@ -54,8 +55,9 @@ public class Solution {
 		random = new Random();
 		sol = solution;
 		cutsize = cutsize(sol);
-		System.out.println("The solution was to sucky bakki!");
+		
 		while (cutsize <0){
+			System.out.println("The solution was to sucky bakki!");
 			sol = shuffle(sol);
 			cutsize = cutsize(sol);
 		}
