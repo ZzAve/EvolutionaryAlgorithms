@@ -9,9 +9,6 @@ public class GraphBipartioning {
 	private static int numRuns;
 	protected static int type;		// 1 = Ugraph, 2 = Ggraph
 	
-	//static int popsize = 1;
-	//static boolean[][] population = new boolean[popsize][500];
-	
 	public static void main(String[] args) throws IOException {
 		
 		random = new Random();
@@ -23,16 +20,18 @@ public class GraphBipartioning {
 		
 		Answer[] results = new Answer[numRuns];
 		
-	
+		///////////////// /////////////// //////////////  ////////
+		//Choose here the type of LS algorithm you want to run  //
+		// Only one algorithm can be chosen per run.            //
+		///////////////////// /////////// /////// //////// ///////
 		for(int i=0; i<numRuns; i++) {
 			System.out.println("Round "+(i+1)+"/"+numRuns+")");
 			// entry zero returns the minimum cutsize, entry one the number of vertex swaps;
-			results[i] = multiLS(500);
-			//results[i] = iteratedLS(3); // include perturbation size (2,3,4,5,... ?)
-			//results[i] = geneticLS(100); // or 100
+			//results[i] = multiLS(50);
+			results[i] = iteratedLS(8); // include perturbation size (2,3,4,5,... ?)
+			//results[i] = geneticLS(50); // or 100
 		}
 
-		
 		//write data to file
 		System.out.println("Beginnen met schrijven");
 		try {
@@ -123,22 +122,24 @@ public class GraphBipartioning {
 		//Apply local search on new solution
 		int unchanged=0;
 		nrOfSwaps+= solution.localSearch();
-		oldSolution = solution;
+		oldSolution = new Solution(solution.getSol(),solution.getCutsize(),type);
 		while (unchanged<10){
 			if(nrOfSwaps-threshold>count){System.out.print(". ");count+=threshold;}
 			
 			// Create new solution, which is a perturb solution of the old optimum
-			solution = new Solution(oldSolution.getSol(),oldSolution.getCutsize(), type);
+			solution = new Solution(oldSolution.getSol().clone(),oldSolution.getCutsize(), type);
 			solution.perturbation(perturb);
 			
 			//Apply local search on new solution
 			nrOfSwaps+= solution.localSearch();
-			
+			//System.out.println(solution.getCutsize() + " vs "+ oldSolution.getCutsize());
 			if (solution.getCutsize() < oldSolution.getCutsize()){
 				unchanged = 0;
-				oldSolution = solution;
+				oldSolution = new Solution(solution.getSol().clone(),solution.getCutsize(),type);
+				//System.out.println("Here!");
 			} else {
 				unchanged++;
+				//System.out.println("Here2!");
 			}
 		}
 		System.out.println();

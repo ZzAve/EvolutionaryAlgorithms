@@ -74,6 +74,7 @@ public class Solution {
 		random = new Random();
 		sol = solution;
 		cutsize = cut;
+		//System.out.println("Correct cutsize? "+(cutsize(sol)==cut));
 	}
 	
 	/**
@@ -260,7 +261,6 @@ public class Solution {
 	 * which are in different partitions. This is performed once!
 	 */
 	public void perturbation(int numberOfPerturbs) {
-		//NEEDS VERIFICATION
 		//System.out.println("Perturbing (size "+numberOfPerturbs+")");
 		while (numberOfPerturbs>1){
 			int rand1, rand2; 
@@ -270,6 +270,7 @@ public class Solution {
 			rand1 = random.nextInt(sol.length);
 			sol[rand1] = !sol[rand1];
 			long gain = getGain(rand1+1);
+			//System.out.println("Gain: "+gain+" New cutsize: "+(cutsize-(gain))+" Cmp: "+cutsize(sol));
 			long gain2;
 			//System.out.println("Gain1: "+gain+" New cutsize: "+(cutsize-gain)+" Cmp: "+cutsize(sol));
 			
@@ -285,9 +286,11 @@ public class Solution {
 						|| (sol[rand2] != sol[rand1]) ){/* repeat until unique number is found */}
 				
 				sol[rand2]=!sol[rand2];
-				gain+= getGain(rand2+1);
+				gain2 = getGain(rand2+1);
 				
 			}
+			//System.out.println("gain2: "+gain2);
+			//System.out.println("Gain2: "+gain2+" New cutsize: "+(cutsize-(gain+gain2))+" Cmp: "+cutsize(sol));
 			cutsize -= (gain+gain2);
 			
 			numberOfPerturbs--;
